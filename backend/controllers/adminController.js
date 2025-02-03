@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const Admin = require("../models/adminModel")
 
+
 const userSignup = async (req, res) => {
   try {
     const { email, password } = req.body;
