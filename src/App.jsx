@@ -2,8 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home"; // ✅ Corrected import path
 import Incoming from "./pages/Incoming"; // ✅ Corrected import path
-import Outgoing from "./pages/Outgoing"; // ✅ Corrected import path
-import { useAuth } from "./context/AuthContext"; // ✅ Corrected path for AuthContext
+import Outgoing from "./pages/Outgoing"; 
+import { useAuth } from "./context/AuthContext";
 import PropTypes from "prop-types"; // Import PropTypes
 
 // Protected Route Component

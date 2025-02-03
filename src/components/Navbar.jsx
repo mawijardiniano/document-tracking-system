@@ -1,15 +1,11 @@
 import { Link } from "react-router-dom";
-
+import logo from "../assets/Logo.png";
 const Navbar = () => {
   return (
     <nav className="bg-blue-600 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold">Document Tracking System</h1>
-        <div className="space-x-4">
-          <Link to="/" className="hover:underline">Home</Link>
-          <Link to="/incoming" className="hover:underline">Incoming</Link>
-          <Link to="/outgoing" className="hover:underline">Outgoing</Link>
-        </div>
+        <a href="https://region4b.dost.gov.ph/"><img src={logo} alt="DOST Logo" width={50} height={50}/></a>
+        <h1 className="text-xl font-bold">DOST Marinduque Region IV-B</h1>
       </div>
     </nav>
   );
