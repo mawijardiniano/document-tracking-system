@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const adminRouter = require("./routes/adminRoutes");
+const documentRouter = require("./routes/documentsRoutes")
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -20,6 +21,7 @@ mongoose
   .catch((err) => console.log("Database connection error: ", err));
 
 app.use("/api/admin", adminRouter);
+app.use("/api/document", documentRouter);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
