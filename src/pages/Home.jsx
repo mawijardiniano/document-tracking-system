@@ -6,7 +6,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      {/* Header */}
+
       <header className="bg-blue-800 text-white p-4 flex justify-between items-center shadow-md">
         <h1 className="text-xl font-bold">Document Tracking System</h1>
         <div className="space-x-2">
