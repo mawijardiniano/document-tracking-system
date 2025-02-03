@@ -21,7 +21,6 @@ const Home = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex flex-grow justify-center items-center p-6">
         <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Document Submission Form */}
