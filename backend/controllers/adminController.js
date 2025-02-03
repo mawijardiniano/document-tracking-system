@@ -4,16 +4,13 @@ const dotenv = require("dotenv");
 dotenv.config();
 const Admin = require("../models/adminModel")
 
-
 const userSignup = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     let user = await Admin.findOne({ email });
-
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
     user = new Admin({
       email,
       password: hashedPassword,
@@ -32,22 +29,18 @@ const userSignup = async (req, res) => {
 const userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await Admin.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid Credentials" });
     }
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid Credentials" });
     }
-
     const token = jwt.sign(
       { email: user.email, userId: user._id },
       process.env.JWT_SECRET
     );
-
     console.log("Generated token:", token);
     console.log("User data:", user);
 
