@@ -20,7 +20,6 @@ const Incoming = () => {
           </tr>
         </thead>
         <tbody>
-          {/* Replace this with dynamic data later */}
           <tr>
             <td className="border border-gray-300 p-2">2024-02-02</td>
             <td className="border border-gray-300 p-2">Agency XYZ</td>

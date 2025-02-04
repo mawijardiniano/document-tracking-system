@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { type } = require("os");
 
 
 const documentSchema = new mongoose.Schema({
@@ -18,6 +19,11 @@ const documentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  type : {
+    type : String,
+    enum : ["incoming", "outgoing"],
+    required: true
+  }
 });
 
 module.exports = mongoose.model("Document", documentSchema);
