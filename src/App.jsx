@@ -1,10 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home"; // ✅ Corrected import path
-import Incoming from "./pages/Incoming"; // ✅ Corrected import path
-import Outgoing from "./pages/Outgoing";
-import Admin from "./pages/Admin";
-import AdminDashBoard from "./pages/Dashboard"
+import Incoming from "./pages/admin/Incoming"; // ✅ Corrected import path
+import Outgoing from "./pages/admin/Outgoing";
+import Admin from "./pages/admin/Admin";
+import AdminDashBoard from "./pages/admin/Dashboard";
 import { useAuth } from "./context/AuthContext";
 import PropTypes from "prop-types";
 
@@ -20,25 +20,10 @@ ProtectedRoute.propTypes = {
 function App() {
   return (
     <div>
-      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route
-          path="/incoming"
-          element={
-            <ProtectedRoute>
-              <Incoming />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/outgoing"
-          element={
-            <ProtectedRoute>
-              <Outgoing />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/admin/incoming" element={<Incoming />} />
+        <Route path="/admin/outgoing" element={<Outgoing />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/dashboard" element={<AdminDashBoard />} />
       </Routes>
