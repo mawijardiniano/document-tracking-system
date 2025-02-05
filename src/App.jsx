@@ -1,10 +1,11 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Home from "./pages/Home"; // ✅ Corrected import path
-import Incoming from "./pages/admin/Incoming"; // ✅ Corrected import path
+import Home from "./pages/Home"; 
+import Incoming from "./pages/admin/Incoming";
 import Outgoing from "./pages/admin/Outgoing";
 import Admin from "./pages/admin/Admin";
 import AdminDashBoard from "./pages/admin/Dashboard";
+
 import { useAuth } from "./context/AuthContext";
 import PropTypes from "prop-types";
 

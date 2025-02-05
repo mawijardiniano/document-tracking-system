@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import "../App.css";
+import bg from "../assets/bg.jpg";
 const Home = () => {
   const [trackingNumber, setTrackingNumber] = useState("");
   // const [document, setDocument] = useState([]);
@@ -120,7 +121,7 @@ const Home = () => {
 
       {/* Footer */}
       <footer className="bg-black text-white text-center p-4 mt-auto">
-        &copy; 2025 DOST Marinduque All Rights Reserved.
+        &copy; 2025 DOST PSTO Marinduque All Rights Reserved.
       </footer>
     </div>
   );
