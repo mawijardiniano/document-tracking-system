@@ -43,6 +43,18 @@ const Sidebar = () => {
             </NavLink>
           </li>
           <li>
+
+          <NavLink
+              to="/admin/Scanned"
+              className={({ isActive }) =>
+                `${baseClasses} ${isActive ? activeClasses : ""}`
+              }
+            >
+              Scanned Docs
+            </NavLink>
+          </li>
+          <li>
+
             <button
               className="w-full text-left p-2 rounded-md transition-colors duration-200 hover:bg-gray-200 hover:text-gray-700"
             >

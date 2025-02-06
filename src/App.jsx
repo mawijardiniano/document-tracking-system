@@ -8,6 +8,7 @@ import AdminDashBoard from "./pages/admin/Dashboard";
 
 import { useAuth } from "./context/AuthContext";
 import PropTypes from "prop-types";
+import Scanned from "./pages/admin/scanned";
 
 const ProtectedRoute = ({ children }) => {
   const { isAdmin } = useAuth();
@@ -22,10 +23,10 @@ function App() {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/admin/incoming" element={<Incoming />} />
         <Route path="/admin/outgoing" element={<Outgoing />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/Scanned" element={<Scanned />} />
+        <Route path="/" element={<Admin />} />
         <Route path="/admin/dashboard" element={<AdminDashBoard />} />
       </Routes>
     </div>

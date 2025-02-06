@@ -29,10 +29,10 @@ const Outgoing = () => {
           <table className="min-w-full border border-gray-300 bg-white shadow-md rounded-lg">
             <thead className="bg-blue-500 text-white">
               <tr>
-                <th className="px-4 py-2 border">Agency</th>
-                <th className="px-4 py-2 border">Name</th>
-                <th className="px-4 py-2 border">Purpose Of Letter</th>
-                <th className="px-4 py-2 border">Date</th>
+                <th className="px-4 py-1 border">Agency</th>
+                <th className="px-4 py-1 border">Name</th>
+                <th className="px-4 py-1 border">Purpose Of Letter</th>
+                <th className="px-4 py-1 border">Date</th>
               </tr>
             </thead>
             <tbody>
@@ -41,10 +41,10 @@ const Outgoing = () => {
                   key={doc._id}
                   className="border-b hover:bg-gray-100 text-center"
                 >
-                  <td className="px-4 py-2 border">{doc.agency}</td>
-                  <td className="px-4 py-2 border">{doc.name}</td>
-                  <td className="px-4 py-2 border">{doc.purposeOfLetter}</td>
-                  <td className="px-4 py-2 border">{doc.date}</td>
+                  <td className="px-4 py-1 border">{doc.agency}</td>
+                  <td className="px-4 py-1 border">{doc.name}</td>
+                  <td className="px-4 py-1 border">{doc.purposeOfLetter}</td>
+                  <td className="px-4 py-1 border">{doc.date}</td>
                 </tr>
               ))}
             </tbody>
