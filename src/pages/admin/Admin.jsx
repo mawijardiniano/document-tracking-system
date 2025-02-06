@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import AdminBG from "../../assets/bg4.jpg";
+import "../../App.css"
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -27,44 +29,55 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="h-screen flex justify-center items-center bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-semibold text-center mb-4">Admin Login</h2>
-        {/* {error && <p className="text-red-500 text-sm text-center">{error}</p>} */}
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              className="w-full p-2 border rounded-md"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              className="w-full p-2 border rounded-md"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-black text-white p-2 rounded-md hover:bg-gray-900"
-          >
-            Login
-          </button>
-        </form>
-      </div>
+    <div 
+    className="h-screen flex flex-col items-center bg-cover bg-center relative" 
+    style={{ backgroundImage: `url(${AdminBG})` }}
+  >
+    <div className="absolute inset-0 bg-blue-950 opacity-85"></div>
+    <h1 className="text-white text-7xl font-bold relative z-10 top-30">
+      Document Tracking System
+    </h1>
+  
+  <div className="flex justify-center items-center h-screen">
+
+
+    <div class="glassmorphism-container">
+      <form onSubmit={handleLogin} className="space-y-1">
+        <div>
+          <label className="block text-sm font-medium text-white">
+            Email
+          </label>
+          <input
+            type="email"
+            className="w-full p-2 border rounded-md bg-white"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-white">
+            Password
+          </label>
+          <input
+            type="password"
+            className="w-full p-2 border rounded-md bg-white"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-400 text-white p-2 rounded-md hover:bg-gray-900 mt-2"
+        >
+          Login
+        </button>
+      </form>
     </div>
+    </div>
+  </div>
+  
   );
 };
 
