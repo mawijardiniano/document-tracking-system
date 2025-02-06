@@ -11,7 +11,7 @@ const Layout = ({ children }) => {
       {/* Container for Sidebar and Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar on the left (not fixed, so it connects with the navbar) */}
-        <aside className="w-64 bg-blue-600 text-white p-6">
+        <aside className="w-64 bg-blue-800 text-white p-6">
           <Sidebar />
         </aside>
 
