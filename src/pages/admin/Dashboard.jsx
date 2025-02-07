@@ -47,8 +47,18 @@ const Dashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post(add, formData);
-    alert("Document added successfully");
+    try {
+      await axios.post(add, formData);
+      setFormData({
+        agency: "",
+        name: "",
+        purposeOfLetter: "",
+        date: "",
+        type: "",
+      });
+    } catch (error) {
+      console.error("Error adding document:", error);
+    }
   };
 
   const handleFileChange = (e) => {
@@ -75,7 +85,7 @@ const Dashboard = () => {
   return (
     <Layout>
       <div
-        className="h-screen flex flex-col items-center bg-cover bg-center relative"
+        className="h-screen flex flex-col items-center bg-cover bg-center relative overflow-hidden"
         style={{ backgroundImage: `url(${AdminBG})` }}
       >
         <div className="absolute inset-0 bg-blue-950 opacity-85"></div>
@@ -85,7 +95,7 @@ const Dashboard = () => {
         <div className="flex justify-center space-x-8 mt-10">
           <form
             onSubmit={handleSubmit}
-            className="glassmorphism-container-dashboard space-y-4"
+            className="glassmorphism-container-dashboard space-y-4 relative z-10 p-6 rounded-md"
           >
             <input
               name="agency"
@@ -136,7 +146,7 @@ const Dashboard = () => {
             </button>
           </form>
 
-          <div className="glassmorphism-container">
+          <div className="glassmorphism-container relative z-10 p-6 rounded-md">
             <div className="flex flex-col justify-between h-full">
               <div>
                 <h2 className="text-lg font-semibold text-white mb-2">
