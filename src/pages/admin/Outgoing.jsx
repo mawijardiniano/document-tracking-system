@@ -22,8 +22,8 @@ const Outgoing = () => {
     fetchDocument();
   }, []);
   return (
-  <Layout>
-      <div className="flex flex-col">
+    <Layout>
+      <div className="flex flex-col p-6">
         <h1 className="text-2xl font-medium mb-4">Outgoing Documents</h1>
         {outgoing.length > 0 ? (
           <table className="min-w-full border border-gray-300 bg-white shadow-md rounded-lg">
@@ -44,7 +44,13 @@ const Outgoing = () => {
                   <td className="px-4 py-1 border">{doc.agency}</td>
                   <td className="px-4 py-1 border">{doc.name}</td>
                   <td className="px-4 py-1 border">{doc.purposeOfLetter}</td>
-                  <td className="px-4 py-1 border">{doc.date}</td>
+                  <td className="px-4 py-1 border">
+                    {new Date(doc.date).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -55,7 +61,7 @@ const Outgoing = () => {
           </p>
         )}
       </div>
-</Layout>
+    </Layout>
   );
 };
 

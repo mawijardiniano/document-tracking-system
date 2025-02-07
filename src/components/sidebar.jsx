@@ -3,13 +3,12 @@ import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
   const activeClasses =
-    "bg-blue-200 text-blue-700"; // Classes applied when active
+    "bg-blue-200 text-blue-700";
   const baseClasses =
     "block p-2 rounded-md transition-colors duration-200 hover:bg-gray-200 hover:text-gray-700";
 
   return (
     <div className="flex flex-col overflow-hidden">
-      <h2 className="text-xl font-semibold mb-4">Admin Panel</h2>
       <nav>
         <ul className="space-y-4">
           <li>
