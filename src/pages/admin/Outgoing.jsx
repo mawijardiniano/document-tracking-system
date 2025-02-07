@@ -17,6 +17,10 @@ const Outgoing = () => {
   });
 
   const [editDoc, setEditDoc] = useState(null);
+  const [selectedYear, setSelectedYear] = useState("All");
+  const [selectedMonth, setSelectedMonth] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchDocument = async () => {
     try {
@@ -26,7 +30,7 @@ const Outgoing = () => {
       );
 
       setOutgoing(outgoingDocs);
-      setFilteredDocs(incomingDocs);
+      setFilteredDocs(outgoingDocs);
     } catch (error) {
       console.error("Error fetching documents:", error);
     }
@@ -35,7 +39,44 @@ const Outgoing = () => {
   useEffect(() => {
     fetchDocument();
   }, []);
-
+  const applyFilter = () => {
+      const filtered = outgoing.filter((doc) => {
+        const date = new Date(doc.date);  
+        const yearMatch =
+          selectedYear === "All" ||
+          date.getFullYear().toString() === selectedYear;
+        const monthMatch =
+          selectedMonth === "All" ||
+          date.getMonth().toString() === selectedMonth;
+        const agencyMatch = doc.agency
+          .toLowerCase()
+          .includes(filterText.toLowerCase());
+        return yearMatch && monthMatch && agencyMatch;
+      });
+      setFilteredDocs(filtered);
+      setCurrentPage(1); // Reset page whenever filters change
+    };
+  
+    useEffect(() => {
+      applyFilter();
+    }, [selectedYear, selectedMonth, filterText, outgoing]);
+  
+    // Get unique years and months from incoming documents
+    const uniqueYears = [
+      ...new Set(outgoing.map((doc) => new Date(doc.date).getFullYear().toString())),
+    ];
+    uniqueYears.sort((a, b) => a - b);
+    const uniqueMonths = [
+      ...new Set(outgoing.map((doc) => new Date(doc.date).getMonth().toString())),
+    ];
+    uniqueMonths.sort((a, b) => a - b);
+  
+    // Map month numbers (0-indexed) to month names
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December",
+    ];
+  
     // Delete document handler
     const deleteDocument = async (id) => {
       try {
