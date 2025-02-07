@@ -50,14 +50,13 @@ const Incoming = () => {
       return yearMatch && monthMatch && agencyMatch;
     });
     setFilteredDocs(filtered);
-    setCurrentPage(1); // Reset page whenever filters change
+    setCurrentPage(1); 
   };
 
   useEffect(() => {
     applyFilter();
   }, [selectedYear, selectedMonth, filterText, incoming]);
 
-  // Get unique years and months from incoming documents
   const uniqueYears = [
     ...new Set(incoming.map((doc) => new Date(doc.date).getFullYear().toString())),
   ];
@@ -67,13 +66,11 @@ const Incoming = () => {
   ];
   uniqueMonths.sort((a, b) => a - b);
 
-  // Map month numbers (0-indexed) to month names
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December",
   ];
 
-  // Delete Document Handler
   const deleteDocument = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/api/document/delete-document/${id}`);
@@ -84,7 +81,6 @@ const Incoming = () => {
     }
   };
 
-  // Save edited document
   const saveEdit = async () => {
     try {
       await axios.put(
@@ -106,7 +102,6 @@ const Incoming = () => {
     }
   };
 
-  // Start editing a document
   const handleEdit = (doc) => {
     setEditDoc(doc);
     setFormData({
@@ -118,13 +113,11 @@ const Incoming = () => {
     });
   };
 
-  // Pagination: calculate the paginated documents for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentDocs = filteredDocs.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredDocs.length / itemsPerPage);
 
-  // Handlers for pagination controls
   const handlePrevPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
@@ -215,7 +208,7 @@ const Incoming = () => {
                             className="border p-1"
                           />
                         </td>
-                        <td className="px-4 py-1 border border-gray-200 text-sm">
+                        <td className="px-4 py-1 border  border-gray-200 text-sm">
                           <input
                             type="text"
                             value={editDoc.purposeOfLetter}
@@ -225,7 +218,7 @@ const Incoming = () => {
                                 purposeOfLetter: e.target.value,
                               })
                             }
-                            className="border p-1"
+                            className="border p-1 "
                           />
                         </td>
                         <td className="px-4 py-1 border border-gray-200 text-sm">
