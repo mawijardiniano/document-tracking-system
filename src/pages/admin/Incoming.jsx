@@ -23,7 +23,9 @@ const Incoming = () => {
   const fetchDocument = async () => {
     try {
       const response = await axios.get(api);
-      const incomingDocs = response.data.filter((doc) => doc.type === "incoming");
+      const incomingDocs = response.data.filter(
+        (doc) => doc.type === "incoming"
+      );
       setIncoming(incomingDocs);
       setFilteredDocs(incomingDocs);
     } catch (error) {
@@ -37,20 +39,19 @@ const Incoming = () => {
 
   const applyFilter = () => {
     const filtered = incoming.filter((doc) => {
-      const date = new Date(doc.date);  
+      const date = new Date(doc.date);
       const yearMatch =
         selectedYear === "All" ||
         date.getFullYear().toString() === selectedYear;
       const monthMatch =
-        selectedMonth === "All" ||
-        date.getMonth().toString() === selectedMonth;
+        selectedMonth === "All" || date.getMonth().toString() === selectedMonth;
       const agencyMatch = doc.agency
         .toLowerCase()
         .includes(filterText.toLowerCase());
       return yearMatch && monthMatch && agencyMatch;
     });
     setFilteredDocs(filtered);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   };
 
   useEffect(() => {
@@ -58,7 +59,9 @@ const Incoming = () => {
   }, [selectedYear, selectedMonth, filterText, incoming]);
 
   const uniqueYears = [
-    ...new Set(incoming.map((doc) => new Date(doc.date).getFullYear().toString())),
+    ...new Set(
+      incoming.map((doc) => new Date(doc.date).getFullYear().toString())
+    ),
   ];
   uniqueYears.sort((a, b) => a - b);
   const uniqueMonths = [
@@ -67,13 +70,25 @@ const Incoming = () => {
   uniqueMonths.sort((a, b) => a - b);
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const deleteDocument = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/document/delete-document/${id}`);
+      await axios.delete(
+        `http://localhost:5000/api/document/delete-document/${id}`
+      );
       setIncoming(incoming.filter((doc) => doc._id !== id));
       setFilteredDocs(filteredDocs.filter((doc) => doc._id !== id));
     } catch (error) {
@@ -87,8 +102,12 @@ const Incoming = () => {
         `http://localhost:5000/api/document/update-document/${editDoc._id}`,
         editDoc
       );
-      setIncoming(incoming.map((doc) => (doc._id === editDoc._id ? editDoc : doc)));
-      setFilteredDocs(filteredDocs.map((doc) => (doc._id === editDoc._id ? editDoc : doc)));
+      setIncoming(
+        incoming.map((doc) => (doc._id === editDoc._id ? editDoc : doc))
+      );
+      setFilteredDocs(
+        filteredDocs.map((doc) => (doc._id === editDoc._id ? editDoc : doc))
+      );
       setEditDoc(null);
       setFormData({
         agency: "",
@@ -113,6 +132,116 @@ const Incoming = () => {
     });
   };
 
+  const handlePrintPreview = () => {
+    const printWindow = window.open("", "_blank", "width=800,height=600");
+    printWindow.document.write("<html><head><title>Document Preview</title>");
+    printWindow.document.write(
+      `<style>
+        /* Reset margin and padding */
+        body, html { 
+          font-family: Arial, sans-serif; 
+          margin: 0; 
+          padding: 0; 
+          font-size: 12px; 
+          width: 100%; 
+          height: 100%;
+          text-align: center; /* Center align all content on the page */
+        }
+  
+        /* Table styles */
+        table { 
+          width: 80%; /* Table width reduced to 80% for better alignment */
+          margin: 0 auto; /* Centers the table */
+          border-collapse: collapse; 
+          table-layout: auto;
+        }
+        table, th, td { 
+          border: 1px solid black; 
+        }
+        th, td { 
+          padding: 6px; 
+          text-align: center; /* Center align text in all cells */
+          font-size: 12px; 
+        }
+        th { 
+          background-color: #f2f2f2; 
+        }
+  
+        /* Column widths */
+        .agency-column { width: 20%; }
+        .name-column { width: 25%; }
+        .purpose-column { 
+          width: 40%; /* Allow the Purpose column to take up more space */
+          word-wrap: break-word; 
+          white-space: normal; 
+        }
+        .date-column { width: 20%; }
+  
+        /* Printing specific styles */
+        @media print {
+          /* Set margins for printing */
+          @page { 
+            margin: 10mm; /* Set the page margin to 10mm */
+          }
+  
+          /* Ensure everything is aligned to the full width of the page */
+          body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            text-align: center; /* Ensure text is centered for printing as well */
+          }
+  
+          table {
+            width: 100%; /* Ensure the table takes full width */
+            page-break-inside: avoid;
+            margin: 0 auto; /* Ensure the table stays centered */
+          }
+  
+          /* Scale content to fit the page without overflowing */
+          body {
+            transform: scale(1); /* Ensure normal scaling to avoid content shrinking */
+            transform-origin: top left;
+          }
+  
+          /* Make sure the content doesn't overflow */
+          .purpose-column {
+            white-space: normal;
+            word-wrap: break-word;
+          }
+        }
+      </style>`
+    );
+    printWindow.document.write("</head><body><h2>Incoming Documents</h2>");
+    
+    printWindow.document.write("<table><thead><tr><th class='agency-column'>Agency</th><th class='name-column'>Name</th><th class='purpose-column'>Purpose</th><th class='date-column'>Date</th></tr></thead><tbody>");
+  
+    filteredDocs.forEach((doc) => {
+      printWindow.document.write(
+        `<tr>
+          <td class='agency-column'>${doc.agency}</td>
+          <td class='name-column'>${doc.name}</td>
+          <td class='purpose-column'>${doc.purposeOfLetter}</td>
+          <td class='date-column'>${formatDate(doc.date)}</td>
+        </tr>`
+      );
+    });
+  
+    printWindow.document.write("</tbody></table>");
+    printWindow.document.write("</body></html>");
+    printWindow.document.close();
+    printWindow.print();
+  };
+  
+  const formatDate = (date) => {
+    const newDate = new Date(date);
+    return newDate.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentDocs = filteredDocs.slice(indexOfFirstItem, indexOfLastItem);
@@ -129,10 +258,11 @@ const Incoming = () => {
   return (
     <Layout>
       <div className="flex flex-col px-6 py-2">
-        <div className="flex flex-row items-center justify-between py-2">
-          <div>
+      <div>
             <h1 className="text-2xl font-semibold">Incoming Documents</h1>
           </div>
+        <div className="flex flex-row items-center justify-between py-2">
+
           <div className="flex items-center space-x-4">
             <select
               value={selectedMonth}
@@ -165,7 +295,14 @@ const Incoming = () => {
               onChange={(e) => setFilterText(e.target.value)}
               className="p-2 border border-gray-200 rounded"
             />
+            
           </div>
+          <button
+            onClick={handlePrintPreview}
+            className="px-3 py-1.5 bg-black text-white rounded ml-2"
+          >
+            Print Preview
+          </button>
         </div>
 
         {filteredDocs.length > 0 ? (
@@ -173,11 +310,11 @@ const Incoming = () => {
             <table className="min-w-full border border-gray-200 bg-white shadow-md rounded-lg">
               <thead className="bg-blue-500 text-white">
                 <tr>
-                  <th className="px-4 py-1 border border-gray-200">Agency</th>
-                  <th className="px-4 py-1 border border-gray-200">Name</th>
-                  <th className="px-4 py-1 border border-gray-200">Purpose Of Letter</th>
-                  <th className="px-4 py-1 border border-gray-200">Date</th>
-                  <th className="px-4 py-1 border border-gray-200">Actions</th>
+                  <th className="px-1 py-1 border border-gray-200 w-50">Agency</th>
+                  <th className="px-1 py-1 border border-gray-200 w-40">Name</th>
+                  <th className="px-1 py-1 border border-gray-200" style={{ width: '300px' }}>Purpose Of Letter</th>
+                  <th className="px-1 py-1 border border-gray-200 w-40">Date</th>
+                  <th className="px-1 py-1 border border-gray-200 w-40">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -208,7 +345,7 @@ const Incoming = () => {
                             className="border p-1"
                           />
                         </td>
-                        <td className="px-4 py-1 border  border-gray-200 text-sm">
+                        <td className="px-4 py-1 border border-gray-200 text-sm"  style={{ width: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           <input
                             type="text"
                             value={editDoc.purposeOfLetter}
@@ -284,34 +421,34 @@ const Incoming = () => {
                 ))}
               </tbody>
             </table>
-            <div className="fixed bottom-0 left-0 w-full  py-6 px-6">
-    <div className="flex justify-end items-center space-x-4">
-      <button 
-        onClick={handlePrevPage} 
-        disabled={currentPage === 1}
-        className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-      >
-        Prev
-      </button>
-      <span className="text-lg font-semibold text-gray-400">
-        Page {currentPage} of {totalPages}
-      </span>
-      <button 
-        onClick={handleNextPage} 
-        disabled={currentPage === totalPages}
-        className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-      >
-        Next
-      </button>
-    </div>
-  </div>
-
+            
           </>
         ) : (
           <p className="text-center text-gray-500 mt-4">
             No documents available
           </p>
         )}
+        <div className="sticky top-0 z-10 w-full py-6 px-6 bg-white shadow-sm">
+  <div className="flex justify-end items-center space-x-4">
+                <button
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+                >
+                  Prev
+                </button>
+                <span className="text-lg font-semibold text-gray-400">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
       </div>
     </Layout>
   );

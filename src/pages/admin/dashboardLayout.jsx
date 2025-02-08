@@ -2,7 +2,7 @@ import React from "react";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/sidebar";
 
-const Layout = ({ children }) => {
+const DashboardLayout = ({ children }) => {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <Navbar />
@@ -12,10 +12,10 @@ const Layout = ({ children }) => {
           <Sidebar />
         </aside>
 
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-hidden">{children}</main>
       </div>
     </div>
   );
 };
 
-export default Layout;
+export default DashboardLayout;

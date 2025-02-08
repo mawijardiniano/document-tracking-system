@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Layout from "./layout";
+import DasboardLayout from "./dashboardLayout";
 import AdminBG from "../../assets/bg2.jpg";
 import "../../App.css";
 
@@ -88,23 +88,23 @@ const Dashboard = () => {
   };
 
   return (
-    <Layout>
+    <DasboardLayout>
       <div
         className="h-screen flex flex-col items-center bg-cover bg-center relative overflow-hidden"
         style={{ backgroundImage: `url(${AdminBG})` }}
       >
         <div className="absolute inset-0 bg-blue-950 opacity-85"></div>
         <div className="flex flex-row space-x-8 pt-8">
-          <div className="glassmorphism-container-dashboard relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">Incoming</p>
+          <div className="bg-blue-400 relative w-80 h-40 rounded-md">
+            <p className="p-4 font-medium text-2xl text-white">Incoming Documents</p>
             <p className="text-center text-white font-medium text-4xl">{incoming.length}</p>
           </div>
           <div className="bg-blue-500 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">Outgoing</p>
+            <p className="p-4 font-medium text-2xl text-white">Outgoing Documents</p>
             <p className="text-center text-white font-medium text-4xl">{outgoing.length}</p>
           </div>
           <div className="bg-blue-600 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">Total</p>
+            <p className="p-4 font-medium text-2xl text-white">Total Documents</p>
             <p className="text-center text-white font-medium text-4xl">{total.length}</p>
           </div>
         </div>
@@ -188,7 +188,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </DasboardLayout>
   );
 };
 
