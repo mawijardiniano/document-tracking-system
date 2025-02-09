@@ -18,6 +18,7 @@ const Incoming = () => {
   const [selectedYear, setSelectedYear] = useState("All");
   const [selectedMonth, setSelectedMonth] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [setOpen, setIsOpen] = useState(false);
   const itemsPerPage = 15;
 
   const fetchDocument = async () => {
@@ -214,9 +215,11 @@ const Incoming = () => {
       </style>`
     );
     printWindow.document.write("</head><body><h2>Incoming Documents</h2>");
-    
-    printWindow.document.write("<table><thead><tr><th class='agency-column'>Agency</th><th class='name-column'>Name</th><th class='purpose-column'>Purpose</th><th class='date-column'>Date</th></tr></thead><tbody>");
-  
+
+    printWindow.document.write(
+      "<table><thead><tr><th class='agency-column'>Agency</th><th class='name-column'>Name</th><th class='purpose-column'>Purpose</th><th class='date-column'>Date</th></tr></thead><tbody>"
+    );
+
     filteredDocs.forEach((doc) => {
       printWindow.document.write(
         `<tr>
@@ -227,13 +230,13 @@ const Incoming = () => {
         </tr>`
       );
     });
-  
+
     printWindow.document.write("</tbody></table>");
     printWindow.document.write("</body></html>");
     printWindow.document.close();
     printWindow.print();
   };
-  
+
   const formatDate = (date) => {
     const newDate = new Date(date);
     return newDate.toLocaleDateString("en-US", {
@@ -258,11 +261,10 @@ const Incoming = () => {
   return (
     <Layout>
       <div className="flex flex-col px-6 py-2">
-      <div>
-            <h1 className="text-2xl font-semibold">Incoming Documents</h1>
-          </div>
+        <div>
+          <h1 className="text-2xl font-semibold">Incoming Documents</h1>
+        </div>
         <div className="flex flex-row items-center justify-between py-2">
-
           <div className="flex items-center space-x-4">
             <select
               value={selectedMonth}
@@ -295,7 +297,6 @@ const Incoming = () => {
               onChange={(e) => setFilterText(e.target.value)}
               className="p-2 border border-gray-200 rounded"
             />
-            
           </div>
           <button
             onClick={handlePrintPreview}
@@ -310,11 +311,24 @@ const Incoming = () => {
             <table className="min-w-full border border-gray-200 bg-white shadow-md rounded-lg">
               <thead className="bg-blue-500 text-white">
                 <tr>
-                  <th className="px-1 py-1 border border-gray-200 w-50">Agency</th>
-                  <th className="px-1 py-1 border border-gray-200 w-40">Name</th>
-                  <th className="px-1 py-1 border border-gray-200" style={{ width: '300px' }}>Purpose Of Letter</th>
-                  <th className="px-1 py-1 border border-gray-200 w-40">Date</th>
-                  <th className="px-1 py-1 border border-gray-200 w-40">Actions</th>
+                  <th className="px-1 py-1 border border-gray-200 w-50">
+                    Agency
+                  </th>
+                  <th className="px-1 py-1 border border-gray-200 w-40">
+                    Name
+                  </th>
+                  <th
+                    className="px-1 py-1 border border-gray-200"
+                    style={{ width: "300px" }}
+                  >
+                    Purpose Of Letter
+                  </th>
+                  <th className="px-1 py-1 border border-gray-200 w-40">
+                    Date
+                  </th>
+                  <th className="px-1 py-1 border border-gray-200 w-40">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -345,7 +359,15 @@ const Incoming = () => {
                             className="border p-1"
                           />
                         </td>
-                        <td className="px-4 py-1 border border-gray-200 text-sm"  style={{ width: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <td
+                          className="px-4 py-1 border border-gray-200 text-sm"
+                          style={{
+                            width: "300px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           <input
                             type="text"
                             value={editDoc.purposeOfLetter}
@@ -409,8 +431,8 @@ const Incoming = () => {
                             Edit
                           </button>
                           <button
-                            onClick={() => deleteDocument(doc._id)}
-                            className="bg-red-500 text-white px-2 py-1 rounded"
+                            onClick={() => setIsOpen(!setOpen)}
+                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
                           >
                             Delete
                           </button>
@@ -421,7 +443,29 @@ const Incoming = () => {
                 ))}
               </tbody>
             </table>
-            
+            <div className="bg-gray-500 ">
+  {setOpen && (
+    <div className="fixed inset-0 flex items-center justify-center bg-opacity-10 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg relative z-10">
+        <p>Are you sure?</p>
+        <button
+          onClick={() => deleteDocument(doc._id)}
+          className="bg-red-500 text-white px-4 py-2 rounded mt-4"
+        >
+          Yes
+        </button>
+        <button
+          onClick={() => setIsOpen(!setOpen)}
+          className="ml-2 text-blue-500"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  )}
+</div>
+           
+
           </>
         ) : (
           <p className="text-center text-gray-500 mt-4">
@@ -429,26 +473,27 @@ const Incoming = () => {
           </p>
         )}
         <div className="sticky top-0 z-10 w-full py-6 px-6 bg-white shadow-sm">
-  <div className="flex justify-end items-center space-x-4">
-                <button
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 1}
-                  className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-                >
-                  Prev
-                </button>
-                <span className="text-lg font-semibold text-gray-400">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                  className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+          <div className="flex justify-end items-center space-x-4">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+            <span className="text-lg font-semibold text-gray-400">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      
       </div>
     </Layout>
   );
