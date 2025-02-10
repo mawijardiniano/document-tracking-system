@@ -473,6 +473,7 @@ const Outgoing = () => {
                 ))}
               </tbody>
             </table>
+            
             <div className="bg-gray-500 ">
               {setOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-50 z-50">
