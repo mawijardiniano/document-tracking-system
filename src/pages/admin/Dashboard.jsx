@@ -130,7 +130,6 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
-
         <div className="flex justify-center space-x-8 mt-4 flex-col">
   <div>
     <h1 className="text-3xl text-white relative font-bold pb-4">
