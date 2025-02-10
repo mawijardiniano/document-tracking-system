@@ -36,11 +36,7 @@ const Dashboard = () => {
     fetchDocument();
   }, []);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setFormData({ ...formData, document: file });
-  };
-  
+ 
 
   const [formData, setFormData] = useState({
     agency: "",
@@ -56,10 +52,46 @@ const Dashboard = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  // Handle file selection and automatically upload the file
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+
+    if (selectedFile) {
+
+    }
+  };
+
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!file) {
+      alert("Please select a file.");
+      return;
+    }
+
+    console.log("Form data before submission:", formData);
+    console.log("Selected file:", file);
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("agency", formData.agency);
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("code", formData.code);
+    formDataToSend.append("purposeOfLetter", formData.purposeOfLetter);
+    formDataToSend.append("date", formData.date);
+    formDataToSend.append("type", formData.type);
+    formDataToSend.append("document", file); // Append the file
+
     try {
-      await axios.post(add, formData);
+      // Assuming 'add' is the endpoint for adding documents
+      await axios.post("http://localhost:5000/api/document/add-document", formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      // Reset the form after successful submission
       setFormData({
         agency: "",
         name: "",
@@ -68,30 +100,15 @@ const Dashboard = () => {
         date: "",
         type: "",
       });
+      setFile(null);
 
+      // Fetch document after successful upload (optional)
       fetchDocument();
     } catch (error) {
       console.error("Error adding document:", error);
     }
   };
 
-
-  const handleUpload = async () => {
-    if (!file) return alert("Please select a file first");
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      await axios.post(uploadApi, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      alert("File uploaded successfully");
-      setFile(null);
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      alert("Error uploading file");
-    }
-  };
 
   return (
     <DasboardLayout>
