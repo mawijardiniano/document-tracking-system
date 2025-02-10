@@ -18,6 +18,8 @@ const Outgoing = () => {
   const [selectedYear, setSelectedYear] = useState("All");
   const [selectedMonth, setSelectedMonth] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [setOpen, setIsOpen] = useState(false);
+  const [selectedDocId, setSelectedDocId] = useState(null);
   const itemsPerPage = 15;
 
   const fetchDocument = async () => {
@@ -85,12 +87,17 @@ const Outgoing = () => {
   ];
 
   const deleteDocument = async (id) => {
+    if (!id) {
+      console.error("Error: Document ID is null or undefined");
+      return;
+    }
     try {
       await axios.delete(
         `http://localhost:5000/api/document/delete-document/${id}`
       );
-      setOutgoing(outgoing.filter((doc) => doc._id !== id));
-      setFilteredDocs(filteredDocs.filter((doc) => doc._id !== id));
+      setOutgoing((prev) => prev.filter((doc) => doc._id !== id));
+      setFilteredDocs((prev) => prev.filter((doc) => doc._id !== id));
+      setIsOpen(false);
     } catch (error) {
       console.error("Error deleting document:", error);
     }
@@ -324,10 +331,7 @@ const Outgoing = () => {
                   >
                     Purpose Of Letter
                   </th>
-                  <th
-                    className="px-1 py-1 border border-gray-200 w-30"
-               
-                  >
+                  <th className="px-1 py-1 border border-gray-200 w-30">
                     Code
                   </th>
                   <th className="px-1 py-1 border border-gray-200 w-40">
@@ -387,9 +391,7 @@ const Outgoing = () => {
                             className="border p-1 "
                           />
                         </td>
-                        <td
-                          className="px-4 py-1 border border-gray-200 text-sm"
-                        >
+                        <td className="px-4 py-1 border border-gray-200 text-sm">
                           <input
                             type="text"
                             value={editDoc.code}
@@ -456,7 +458,10 @@ const Outgoing = () => {
                             Edit
                           </button>
                           <button
-                            onClick={() => deleteDocument(doc._id)}
+                            onClick={() => {
+                              setSelectedDocId(doc._id);
+                              setIsOpen(true);
+                            }}
                             className="bg-red-500 text-white px-2 py-1 rounded"
                           >
                             Delete
@@ -468,6 +473,35 @@ const Outgoing = () => {
                 ))}
               </tbody>
             </table>
+            <div className="bg-gray-500 ">
+              {setOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-50 z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg relative z-10 w-90">
+                    <p className="font-medium">
+                      Are you sure you want to delete?
+                    </p>
+                    <p>
+                      This will permanently delete the item and remove it from
+                      our servers.
+                    </p>
+                    <div className="w-full flex justify-end items-end space-x-2">
+                      <button
+                        onClick={() => deleteDocument(selectedDocId)}
+                        className="bg-red-500 text-white px-4 py-2 w-20 rounded mt-4"
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setIsOpen(false)}
+                        className="bg-white text-black border border-gray-400 px-4 py-2 rounded mt-4"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <p className="text-center text-gray-500 mt-4">
@@ -475,27 +509,26 @@ const Outgoing = () => {
           </p>
         )}
         <div className="sticky top-0 z-10 w-full py-6 px-6 bg-white shadow-sm">
-  <div className="flex justify-end items-center space-x-4">
-    <button
-      onClick={handlePrevPage}
-      disabled={currentPage === 1}
-      className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-    >
-      Prev
-    </button>
-    <span className="text-lg font-semibold text-gray-400">
-      Page {currentPage} of {totalPages}
-    </span>
-    <button
-      onClick={handleNextPage}
-      disabled={currentPage === totalPages}
-      className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-    >
-      Next
-    </button>
-  </div>
-</div>
-
+          <div className="flex justify-end items-center space-x-4">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+            <span className="text-lg font-semibold text-gray-400">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </Layout>
   );
