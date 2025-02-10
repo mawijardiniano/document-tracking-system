@@ -23,7 +23,7 @@ const Dashboard = () => {
         (doc) => doc.type === "outgoing"
       );
 
-      setTotal(response.data)
+      setTotal(response.data);
       setIncoming(incomingDocs);
       setOutgoing(outgoingDocs);
     } catch (error) {
@@ -35,9 +35,16 @@ const Dashboard = () => {
     fetchDocument();
   }, []);
 
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setFormData({ ...formData, document: file });
+  };
+  
+
   const [formData, setFormData] = useState({
     agency: "",
     name: "",
+    code: "",
     purposeOfLetter: "",
     date: "",
     type: "",
@@ -55,6 +62,7 @@ const Dashboard = () => {
       setFormData({
         agency: "",
         name: "",
+        code: "",
         purposeOfLetter: "",
         date: "",
         type: "",
@@ -66,9 +74,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
 
   const handleUpload = async () => {
     if (!file) return alert("Please select a file first");
@@ -94,99 +99,129 @@ const Dashboard = () => {
         style={{ backgroundImage: `url(${AdminBG})` }}
       >
         <div className="absolute inset-0 bg-blue-950 opacity-85"></div>
-        <div className="flex flex-row space-x-8 pt-8">
+        <h1 className="relative text-4xl font-bold text-white flex self-start px-30 pt-5">
+          Document Dashboard
+        </h1>
+
+        <div className="flex flex-row space-x-8 pt-4">
           <div className="bg-blue-400 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">Incoming Documents</p>
-            <p className="text-center text-white font-medium text-4xl">{incoming.length}</p>
+            <p className="p-4 font-medium text-2xl text-white">
+              Incoming Documents
+            </p>
+            <p className="text-center text-white font-medium text-4xl">
+              {incoming.length}
+            </p>
           </div>
           <div className="bg-blue-500 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">Outgoing Documents</p>
-            <p className="text-center text-white font-medium text-4xl">{outgoing.length}</p>
+            <p className="p-4 font-medium text-2xl text-white">
+              Outgoing Documents
+            </p>
+            <p className="text-center text-white font-medium text-4xl">
+              {outgoing.length}
+            </p>
           </div>
           <div className="bg-blue-600 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">Total Documents</p>
-            <p className="text-center text-white font-medium text-4xl">{total.length}</p>
+            <p className="p-4 font-medium text-2xl text-white">
+              Total Documents
+            </p>
+            <p className="text-center text-white font-medium text-4xl">
+              {total.length}
+            </p>
           </div>
         </div>
 
-        <div className="flex justify-center space-x-8 mt-10">
-          <form
-            onSubmit={handleSubmit}
-            className="glassmorphism-container-dashboard-form space-y-4 relative z-10 p-6 rounded-md"
-          >
-            <input
-              name="agency"
-              type="text"
-              placeholder="Agency"
-              value={formData.agency}
-              onChange={handleChange}
-              className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-            />
-            <input
-              name="name"
-              type="text"
-              placeholder="Name"
-              value={formData.name}
-              onChange={handleChange}
-              className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-            />
-            <input
-              name="purposeOfLetter"
-              type="text"
-              placeholder="Purpose"
-              value={formData.purposeOfLetter}
-              onChange={handleChange}
-              className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-            />
-            <input
-              name="date"
-              type="date"
-              value={formData.date}
-              onChange={handleChange}
-              className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-            />
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-            >
-              <option value="">Select Type</option>
-              <option value="incoming">Incoming</option>
-              <option value="outgoing">Outgoing</option>
-            </select>
-            <button
-              type="submit"
-              className="w-full rounded-md bg-blue-600 py-2 px-4 text-white hover:bg-blue-700"
-            >
-              Submit
-            </button>
-          </form>
+        <div className="flex justify-center space-x-8 mt-4 flex-col">
+  <div>
+    <h1 className="text-3xl text-white relative font-bold pb-4">
+      Add New Document
+    </h1>
+  </div>
+  <form
+    onSubmit={handleSubmit}
+    className="glassmorphism-container-dashboard-form space-y-4 relative z-10 p-6 rounded-md"
+  >
+    <div className="flex flex-row space-x-4 items-center justify-center">
+      <div className="space-y-1 w-full">
+        <label className="text-white font-medium">Agency</label>
+        <input
+          name="agency"
+          type="text"
+          placeholder="Enter agency name"
+          value={formData.agency}
+          onChange={handleChange}
+          className="block rounded-md px-2 py-2 border border-black bg-white bg-opacity-50 w-full"
+        />
+        <label className="text-white font-medium">Name</label>
+        <input
+          name="name"
+          type="text"
+          placeholder="Name"
+          value={formData.name}
+          onChange={handleChange}
+          className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+        />
+        <label className="text-white font-medium">Purpose of Letter</label>
+        <input
+          name="purposeOfLetter"
+          type="text"
+          placeholder="Describe the purpose of this request"
+          value={formData.purposeOfLetter}
+          onChange={handleChange}
+          className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+        />
+      </div>
+      <div className="space-y-1 w-full">
+        <label className="text-white font-medium">Code</label>
+        <input
+          name="code"
+          type="text"
+          placeholder="Code"
+          value={formData.code}
+          onChange={handleChange}
+          className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+        />
+        <label className="text-white font-medium">Date</label>
+        <input
+          name="date"
+          type="date"
+          value={formData.date}
+          onChange={handleChange}
+          className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+        />
+        <label className="text-white font-medium">Document Type</label>
+        <select
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+          className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+        >
+          <option value="">Select Type</option>
+          <option value="incoming">Incoming</option>
+          <option value="outgoing">Outgoing</option>
+        </select>
+      </div>
+    </div>
 
-          <div className="glassmorphism-container relative z-10 p-6 rounded-md">
-            <div className="flex flex-col justify-between h-full">
-              <div>
-                <h2 className="text-lg font-semibold text-white mb-2">
-                  Upload Scanned Document
-                </h2>
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={handleFileChange}
-                  className="block w-full bg-white bg-opacity-50 px-4 py-2 rounded-md"
-                />
-              </div>
-              <div>
-                <button
-                  onClick={handleUpload}
-                  className="w-full rounded-md bg-green-600 py-2 px-4 text-white hover:bg-green-700"
-                >
-                  Upload
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+
+    <div>
+      <h1 className="text-white font-medium">Upload Document</h1>
+      <input
+        type="file"
+        name="document"
+        onChange={handleFileChange}
+        className="block w-[485px] rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+      />
+    </div>
+
+    <button
+      type="submit"
+      className="w-60 rounded-md bg-blue-600 py-2 px-4 text-white hover:bg-blue-700"
+    >
+      Submit
+    </button>
+  </form>
+</div>
+
       </div>
     </DasboardLayout>
   );
