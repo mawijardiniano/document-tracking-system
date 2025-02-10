@@ -414,7 +414,7 @@ const Outgoing = () => {
                             className="border p-1"
                           />
                         </td>
-                        <td className="px-4 py-1 border border-gray-200 text-sm">
+                        <td className="px-1 py-1 border border-gray-200 text-sm">
                           <button
                             onClick={saveEdit}
                             className="bg-green-500 text-white px-2 py-1 rounded mr-2"
