@@ -3,9 +3,9 @@ const Document = require("../models/documentModels");
 // ✅ Add a new document
 const addDocument = async (req, res) => {
   try {
-    const { agency, purposeOfLetter, date, name,code, type } = req.body;
+    const { agency, purposeOfLetter, date, name, type } = req.body;
 
-    if (!agency || !purposeOfLetter || !date || !code || !type) {
+    if (!agency || !purposeOfLetter || !date || !type) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
@@ -13,7 +13,6 @@ const addDocument = async (req, res) => {
       agency,
       purposeOfLetter,
       date,
-      code,
       name,
       type
     });

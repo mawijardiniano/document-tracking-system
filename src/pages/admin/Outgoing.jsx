@@ -119,7 +119,6 @@ const Outgoing = () => {
       setFormData({
         agency: "",
         name: "",
-        code: "",
         purposeOfLetter: "",
         date: "",
         type: "",
@@ -134,7 +133,6 @@ const Outgoing = () => {
     setFormData({
       agency: doc.agency,
       name: doc.name,
-      code: doc.code,
       purposeOfLetter: doc.purposeOfLetter,
       date: doc.date,
       type: doc.type,
@@ -331,12 +329,6 @@ const Outgoing = () => {
                   >
                     Purpose Of Letter
                   </th>
-                  <th
-                    className="px-1 py-1 border border-gray-200 w-30"
-               
-                  >
-                    Code
-                  </th>
                   <th className="px-1 py-1 border border-gray-200 w-40">
                     Date
                   </th>
@@ -394,21 +386,6 @@ const Outgoing = () => {
                             className="border p-1 "
                           />
                         </td>
-                        <td
-                          className="px-4 py-1 border border-gray-200 text-sm"
-                        >
-                          <input
-                            type="text"
-                            value={editDoc.code}
-                            onChange={(e) =>
-                              setEditDoc({
-                                ...editDoc,
-                                code: e.target.value,
-                              })
-                            }
-                            className="border p-1 "
-                          />
-                        </td>
                         <td className="px-4 py-1 border border-gray-200 text-sm">
                           <input
                             type="date"
@@ -444,9 +421,6 @@ const Outgoing = () => {
                         </td>
                         <td className="px-4 py-1 border border-gray-200 text-sm">
                           {doc.purposeOfLetter}
-                        </td>
-                        <td className="px-4 py-1 border border-gray-200 text-sm">
-                          {doc.code}
                         </td>
                         <td className="px-4 py-1 border border-gray-200">
                           {new Date(doc.date).toLocaleDateString("en-US", {
