@@ -3,6 +3,7 @@ import axios from "axios";
 import DasboardLayout from "./dashboardLayout";
 import AdminBG from "../../assets/bg2.jpg";
 import "../../App.css";
+import { FileDown, FileUp, Files, FilePlus, UploadCloud } from "lucide-react";
 
 const Dashboard = () => {
   const api = "http://localhost:5000/api/document/get-document";
@@ -23,7 +24,7 @@ const Dashboard = () => {
         (doc) => doc.type === "outgoing"
       );
 
-      setTotal(response.data)
+      setTotal(response.data);
       setIncoming(incomingDocs);
       setOutgoing(outgoingDocs);
     } catch (error) {
@@ -95,17 +96,20 @@ const Dashboard = () => {
       >
         <div className="absolute inset-0 bg-blue-950 opacity-85"></div>
         <div className="flex flex-row space-x-8 pt-8">
-          <div className="bg-blue-400 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">Incoming Documents</p>
-            <p className="text-center text-white font-medium text-4xl">{incoming.length}</p>
+          <div className="bg-blue-400 relative w-80 h-40 rounded-md flex flex-col items-center justify-center text-white">
+            <FileDown size={40} />
+            <p className="font-medium text-2xl">Incoming Documents</p>
+            <p className="text-4xl font-medium">{incoming.length}</p>
           </div>
-          <div className="bg-blue-500 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">Outgoing Documents</p>
-            <p className="text-center text-white font-medium text-4xl">{outgoing.length}</p>
+          <div className="bg-blue-500 relative w-80 h-40 rounded-md flex flex-col items-center justify-center text-white">
+            <FileUp size={40} />
+            <p className="font-medium text-2xl">Outgoing Documents</p>
+            <p className="text-4xl font-medium">{outgoing.length}</p>
           </div>
-          <div className="bg-blue-600 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">Total Documents</p>
-            <p className="text-center text-white font-medium text-4xl">{total.length}</p>
+          <div className="bg-blue-600 relative w-80 h-40 rounded-md flex flex-col items-center justify-center text-white">
+            <p className="font-medium text-2xl">Total Documents</p>
+            <p className="text-4xl font-medium">{total.length}</p>
+            <Files size={40}/>
           </div>
         </div>
 
@@ -145,16 +149,6 @@ const Dashboard = () => {
               onChange={handleChange}
               className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
             />
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-            >
-              <option value="">Select Type</option>
-              <option value="incoming">Incoming</option>
-              <option value="outgoing">Outgoing</option>
-            </select>
             <button
               type="submit"
               className="w-full rounded-md bg-blue-600 py-2 px-4 text-white hover:bg-blue-700"
@@ -164,27 +158,18 @@ const Dashboard = () => {
           </form>
 
           <div className="glassmorphism-container relative z-10 p-6 rounded-md">
-            <div className="flex flex-col justify-between h-full">
-              <div>
-                <h2 className="text-lg font-semibold text-white mb-2">
-                  Upload Scanned Document
-                </h2>
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={handleFileChange}
-                  className="block w-full bg-white bg-opacity-50 px-4 py-2 rounded-md"
-                />
-              </div>
-              <div>
-                <button
-                  onClick={handleUpload}
-                  className="w-full rounded-md bg-green-600 py-2 px-4 text-white hover:bg-green-700"
-                >
-                  Upload
-                </button>
-              </div>
-            </div>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={handleFileChange}
+              className="block w-full bg-white bg-opacity-50 px-4 py-2 rounded-md"
+            />
+            <button
+              onClick={handleUpload}
+              className="w-full rounded-md bg-green-600 py-2 px-4 text-white hover:bg-green-700 mt-4"
+            >
+              Upload
+            </button>
           </div>
         </div>
       </div>
