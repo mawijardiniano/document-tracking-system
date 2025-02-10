@@ -94,7 +94,9 @@ const Dashboard = () => {
         className="h-screen flex flex-col items-center bg-cover bg-center relative overflow-hidden"
         style={{ backgroundImage: `url(${AdminBG})` }}
       >
+
         <div className="absolute inset-0 bg-blue-950 opacity-85"></div>
+
         <div className="flex flex-row space-x-8 pt-8">
           <div className="bg-blue-400 relative w-80 h-40 rounded-md">
             <p className="p-4 font-medium text-2xl text-white">Incoming Documents</p>
