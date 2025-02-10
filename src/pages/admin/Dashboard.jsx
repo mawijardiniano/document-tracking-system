@@ -3,6 +3,7 @@ import axios from "axios";
 import DasboardLayout from "./dashboardLayout";
 import AdminBG from "../../assets/bg2.jpg";
 import "../../App.css";
+import { FileInput, FileOutput, Files, FilePlus, UploadCloud } from "lucide-react";
 
 const Dashboard = () => {
   const api = "http://localhost:5000/api/document/get-document";
@@ -105,31 +106,33 @@ const Dashboard = () => {
 
         <div className="flex flex-row space-x-8 pt-4">
           <div className="bg-blue-400 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">
+            <p className="p-4 font-medium text-2xl text-white flex flex-row items-center justify-between">
               Incoming Documents
+              <FileInput/>
             </p>
             <p className="text-center text-white font-medium text-4xl">
               {incoming.length}
             </p>
           </div>
           <div className="bg-blue-500 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">
+            <p className="p-4 font-medium text-2xl text-white flex flex-row items-center justify-between">
               Outgoing Documents
+              <FileOutput/>
             </p>
             <p className="text-center text-white font-medium text-4xl">
               {outgoing.length}
             </p>
           </div>
           <div className="bg-blue-600 relative w-80 h-40 rounded-md">
-            <p className="p-4 font-medium text-2xl text-white">
+            <p className="p-4 font-medium text-2xl text-white flex flex-row items-center justify-between">
               Total Documents
+              <Files/>
             </p>
             <p className="text-center text-white font-medium text-4xl">
               {total.length}
             </p>
           </div>
         </div>
-
         <div className="flex justify-center space-x-8 mt-4 flex-col">
   <div>
     <h1 className="text-3xl text-white relative font-bold pb-4">
@@ -221,7 +224,6 @@ const Dashboard = () => {
     </button>
   </form>
 </div>
-
       </div>
     </DasboardLayout>
   );
