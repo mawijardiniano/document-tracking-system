@@ -18,6 +18,10 @@ const documentSchema = new mongoose.Schema({
   name: {
     type: String,
   },
+  code: {
+    type: String,
+    required: true,
+  },
   type : {
     type : String,
     enum : ["incoming", "outgoing"],
