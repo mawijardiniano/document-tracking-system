@@ -5,7 +5,7 @@ const addDocument = async (req, res) => {
   try {
     const { agency, purposeOfLetter, date, name, type } = req.body;
 
-    if (!agency || !purposeOfLetter || !date || !name || !type) {
+    if (!agency || !purposeOfLetter || !date || !type) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
