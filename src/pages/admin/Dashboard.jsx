@@ -24,7 +24,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
 const Dashboard = () => {
   const api = "http://localhost:5000/api/document/get-document";
   const [documents, setDocuments] = useState([]);
@@ -57,13 +56,10 @@ const Dashboard = () => {
     try {
       const response = await axios.get(api);
       const allDocs = response.data;
-
       const uniqueYears = [];
-
       allDocs.forEach((doc) => {
         const docDate = moment(doc.date);
         const year = docDate.format("YYYY");
-
         if (!uniqueYears.includes(year)) {
           uniqueYears.push(year);
         }
