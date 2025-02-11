@@ -6,7 +6,9 @@ const Notification = ({ message, type }) => {
   if (!message) return null;
   return (
     <div
-      className={`absolute top-20 right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${type === "success" ? "bg-red-500" : "bg-red-500"}`}
+      className={`absolute top-20 right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${
+        type === "success" ? "bg-green-500" : "bg-red-500"
+      }`}
       style={{ zIndex: 1000 }}
     >
       {message}
@@ -19,7 +21,7 @@ const Incoming = () => {
   const [incoming, setIncoming] = useState([]);
   const [filteredDocs, setFilteredDocs] = useState([]);
   const [filterText, setFilterText] = useState("");
-    const [notification, setNotification] = useState(null);
+  const [notification, setNotification] = useState(null);
   const [formData, setFormData] = useState({
     agency: "",
     name: "",
@@ -111,7 +113,10 @@ const Incoming = () => {
       setIncoming((prev) => prev.filter((doc) => doc._id !== id));
       setFilteredDocs((prev) => prev.filter((doc) => doc._id !== id));
       setIsOpen(false);
-      setNotification({ message: "Document Deleted successfully!", type: "success" });
+      setNotification({
+        message: "Document Deleted successfully!",
+        type: "error",
+      });
     } catch (error) {
       console.error("Error deleting document:", error);
     }
@@ -120,7 +125,6 @@ const Incoming = () => {
     }, 3000);
   };
 
-  
   const saveEdit = async () => {
     try {
       await axios.put(
@@ -142,7 +146,10 @@ const Incoming = () => {
         date: "",
         type: "",
       });
-      setNotification({ message: "Document Updated successfully!", type: "success" });
+      setNotification({
+        message: "Document Updated successfully!",
+        type: "success",
+      });
     } catch (error) {
       console.error("Error updating document:", error);
     }
@@ -294,10 +301,13 @@ const Incoming = () => {
         <div>
           <h1 className="text-2xl font-semibold">Incoming Documents</h1>
         </div>
-       
+
         <div className="flex flex-row items-center justify-between py-2">
-        <Notification message={notification?.message} type={notification?.type} />
-        
+          <Notification
+            message={notification?.message}
+            type={notification?.type}
+          />
+
           <div className="flex items-center space-x-4">
             <select
               value={selectedMonth}
@@ -356,12 +366,10 @@ const Incoming = () => {
                   >
                     Purpose Of Letter
                   </th>
-                  <th
-                    className="px-1 py-1 border border-gray-200 w-30"
-                  >
+                  <th className="px-1 py-1 border border-gray-200 w-30">
                     Code
                   </th>
-                  
+
                   <th className="px-1 py-1 border border-gray-200 w-40">
                     Date
                   </th>
@@ -494,10 +502,10 @@ const Incoming = () => {
                             Edit
                           </button>
                           <button
-                              onClick={() => {
-        setSelectedDocId(doc._id);
-        setIsOpen(true);
-      }}
+                            onClick={() => {
+                              setSelectedDocId(doc._id);
+                              setIsOpen(true);
+                            }}
                             className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
                           >
                             Delete
@@ -510,31 +518,34 @@ const Incoming = () => {
               </tbody>
             </table>
             <div className="bg-gray-500 ">
-  {setOpen && (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-50 z-50">
-        <div className="bg-white p-6 rounded-lg shadow-lg relative z-10 w-90">
-          <p className="font-medium">Are you sure you want to delete?</p>
-          <p>This will permanently delete the item and remove it from our servers.</p>
-          <div className="w-full flex justify-end items-end space-x-2">
-            <button
-              onClick={() => deleteDocument(selectedDocId)}
-              className="bg-red-500 text-white px-4 py-2 w-20 rounded mt-4"
-            >
-              Yes
-            </button>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="bg-white text-black border border-gray-400 px-4 py-2 rounded mt-4"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-  )}
-</div>
-           
-
+              {setOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-50 z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg relative z-10 w-90">
+                    <p className="font-medium">
+                      Are you sure you want to delete?
+                    </p>
+                    <p>
+                      This will permanently delete the item and remove it from
+                      our servers.
+                    </p>
+                    <div className="w-full flex justify-end items-end space-x-2">
+                      <button
+                        onClick={() => deleteDocument(selectedDocId)}
+                        className="bg-red-500 text-white px-4 py-2 w-20 rounded mt-4"
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setIsOpen(false)}
+                        className="bg-white text-black border border-gray-400 px-4 py-2 rounded mt-4"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <p className="text-center text-gray-500 mt-4">
@@ -562,7 +573,6 @@ const Incoming = () => {
             </button>
           </div>
         </div>
-      
       </div>
     </Layout>
   );

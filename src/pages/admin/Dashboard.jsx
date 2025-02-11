@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import axios from "axios";
 import DasboardLayout from "./dashboardLayout";
 import AdminBG from "../../assets/bg2.jpg";
@@ -25,6 +25,7 @@ const Dashboard = () => {
   const [outgoing, setOutgoing] = useState([]);
   const [total, setTotal] = useState([]);
   const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null);
   const [notification, setNotification] = useState(null);
 
   const fetchDocument = async () => {
@@ -104,6 +105,8 @@ const Dashboard = () => {
         type: "",
       });
       setFile(null);
+
+      fileInputRef.current.value = null; 
       setNotification({ message: "Document uploaded successfully!", type: "success" });
 
       fetchDocument();
@@ -236,6 +239,7 @@ const Dashboard = () => {
             <div>
               <h1 className="text-white font-medium">Upload Document</h1>
               <input
+               ref={fileInputRef}
                 type="file"
                 name="document"
                 onChange={handleFileChange}
