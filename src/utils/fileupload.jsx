@@ -1,19 +1,30 @@
-// export const convertBase64ToBlob = (base64) => {
-//     const byteCharacters = atob(base64); // Decode base64 string
-//     const byteArrays = [];
+export const convertBase64ToBlob = (base64Data) => {
+    if (!base64Data || typeof base64Data !== 'string') {
+      throw new Error('Invalid base64 data provided');
+    }
   
-//     for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
-//       const slice = byteCharacters.slice(offset, offset + 1024);
-//       const byteNumbers = new Array(slice.length);
+    // Remove the data URL prefix (if present)
+    const base64String = base64Data.includes('data:') 
+      ? base64Data.split(',')[1] 
+      : base64Data;  // If no prefix, use the base64Data as is
+    
+    try {
+      // Decode base64 string to binary data
+      const byteCharacters = atob(base64String);
+      const byteArrays = [];
   
-//       for (let i = 0; i < slice.length; i++) {
-//         byteNumbers[i] = slice.charCodeAt(i);
-//       }
+      // Convert binary string to an array of bytes
+      for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+        const slice = byteCharacters.slice(offset, offset + 1024);
+        const byteNumbers = Array.from(slice, (char) => char.charCodeAt(0));
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
   
-//       const byteArray = new Uint8Array(byteNumbers);
-//       byteArrays.push(byteArray);
-//     }
-  
-//     return new Blob(byteArrays, { type: "application/pdf" });
-//   };
+      // Return the Blob
+      return new Blob(byteArrays, { type: 'application/pdf' });
+    } catch (error) {
+      throw new Error('Base64 data is not correctly encoded');
+    }
+  };
   
