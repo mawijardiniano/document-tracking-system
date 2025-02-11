@@ -1,123 +1,137 @@
-import React, { useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import DasboardLayout from "./dashboardLayout";
 import AdminBG from "../../assets/bg2.jpg";
 import "../../App.css";
 import { FileInput, FileOutput, Files } from "lucide-react";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import moment from "moment";
 
-const Notification = ({ message, type }) => {
-  if (!message) return null;
-  return (
-    <div
-      className={`absolute right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${type === "success" ? "bg-green-500" : "bg-red-500"}`}
-      style={{ zIndex: 1000 }}
-    >
-      {message}
-    </div>
-  );
-};
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
   const api = "http://localhost:5000/api/document/get-document";
-  const add = "http://localhost:5000/api/document/add-document";
-  const uploadApi = "http://localhost:5000/api/document/upload";
+  const [documents, setDocuments] = useState([]);
+  const [total, setTotal] = useState([]);
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
-  const [total, setTotal] = useState([]);
-  const [file, setFile] = useState(null);
-  const fileInputRef = useRef(null);
-  const [notification, setNotification] = useState(null);
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: "Incoming Documents",
+        data: [],
+        backgroundColor: "blue",
+        borderColor: "blue",
+        borderWidth: 1,
+      },
+      {
+        label: "Outgoing Documents",
+        data: [],
+        backgroundColor: "red",
+        borderColor: "red",
+        borderWidth: 1,
+      },
+    ],
+  });
+  const [years, setYears] = useState([]);
+  const [selectedYear, setSelectedYear] = useState("");
 
   const fetchDocument = async () => {
     try {
       const response = await axios.get(api);
-      const incomingDocs = response.data.filter(
-        (doc) => doc.type === "incoming"
-      );
-      const outgoingDocs = response.data.filter(
-        (doc) => doc.type === "outgoing"
-      );
+      const allDocs = response.data;
 
-      setTotal(response.data);
-      setIncoming(incomingDocs);
-      setOutgoing(outgoingDocs);
+      const uniqueYears = [];
+
+      allDocs.forEach((doc) => {
+        const docDate = moment(doc.date);
+        const year = docDate.format("YYYY");
+
+        if (!uniqueYears.includes(year)) {
+          uniqueYears.push(year);
+        }
+      });
+
+      setYears(uniqueYears);
+      setDocuments(allDocs);
+
+      const currentYear = moment().format("YYYY");
+      setSelectedYear(currentYear);
     } catch (error) {
       console.error("Error fetching documents:", error);
     }
+  };
+
+  const filterDocumentsByYear = () => {
+    const filteredDocs = documents.filter(
+      (doc) => moment(doc.date).format("YYYY") === selectedYear
+    );
+
+    const incomingDocs = filteredDocs.filter((doc) => doc.type === "incoming");
+    const outgoingDocs = filteredDocs.filter((doc) => doc.type === "outgoing");
+
+    setTotal(filteredDocs);
+    setIncoming(incomingDocs);
+    setOutgoing(outgoingDocs);
+
+    const months = moment.monthsShort();
+    const incomingCounts = [];
+    const outgoingCounts = [];
+
+    months.forEach((month, index) => {
+      const monthDocs = filteredDocs.filter(
+        (doc) => moment(doc.date).month() === index
+      );
+
+      incomingCounts.push(
+        monthDocs.filter((doc) => doc.type === "incoming").length
+      );
+      outgoingCounts.push(
+        monthDocs.filter((doc) => doc.type === "outgoing").length
+      );
+    });
+
+    setChartData({
+      labels: months,
+      datasets: [
+        {
+          ...chartData.datasets[0],
+          data: incomingCounts,
+        },
+        {
+          ...chartData.datasets[1],
+          data: outgoingCounts,
+        },
+      ],
+    });
   };
 
   useEffect(() => {
     fetchDocument();
   }, []);
 
-  const [formData, setFormData] = useState({
-    agency: "",
-    name: "",
-    code: "",
-    purposeOfLetter: "",
-    date: "",
-    type: "",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    setFile(selectedFile);
-
-    if (selectedFile) {
+  useEffect(() => {
+    if (selectedYear) {
+      filterDocumentsByYear();
     }
-  };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!file) {
-      alert("Please select a file.");
-      return;
-    }
-
-    const formDataToSend = new FormData();
-    formDataToSend.append("agency", formData.agency);
-    formDataToSend.append("name", formData.name);
-    formDataToSend.append("code", formData.code);
-    formDataToSend.append("purposeOfLetter", formData.purposeOfLetter);
-    formDataToSend.append("date", formData.date);
-    formDataToSend.append("type", formData.type);
-    formDataToSend.append("document", file);
-
-    try {
-      await axios.post(add, formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      setFormData({
-        agency: "",
-        name: "",
-        code: "",
-        purposeOfLetter: "",
-        date: "",
-        type: "",
-      });
-      setFile(null);
-
-      fileInputRef.current.value = null; 
-      setNotification({ message: "Document uploaded successfully!", type: "success" });
-
-      fetchDocument();
-    } catch (error) {
-      console.error("Error adding document:", error);
-      setNotification({ message: "Error uploading document.", type: "error" });
-    }
-
-    setTimeout(() => {
-      setNotification(null);
-    }, 3000);
-  };
+  }, [selectedYear]);
 
   return (
     <DasboardLayout>
@@ -129,8 +143,6 @@ const Dashboard = () => {
         <h1 className="relative text-4xl font-bold text-white flex self-start px-30 pt-5">
           Document Dashboard
         </h1>
-       
-        <Notification message={notification?.message} type={notification?.type} />
 
         <div className="flex flex-row space-x-8 pt-4">
           <div className="bg-blue-400 relative w-80 h-40 rounded-md">
@@ -161,97 +173,47 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
-
-        <div className="flex justify-center space-x-8 mt-4 flex-col">
-          <div>
-            <h1 className="text-3xl text-white relative font-bold pb-4">
-              Add New Document
-            </h1>
-          </div>
-          <form
-            onSubmit={handleSubmit}
-            className="glassmorphism-container-dashboard-form space-y-4 relative z-10 p-6 rounded-md"
+        <div className="flex justify-center space-x-4 relative bg-white  self-start">
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="p-2"
           >
-            <div className="flex flex-row space-x-4 items-center justify-center">
-              <div className="space-y-1 w-full">
-                <label className="text-white font-medium">Agency</label>
-                <input
-                  name="agency"
-                  type="text"
-                  placeholder="Enter agency name"
-                  value={formData.agency}
-                  onChange={handleChange}
-                  className="block rounded-md px-2 py-2 border border-black bg-white bg-opacity-50 w-full"
-                />
-                <label className="text-white font-medium">Name</label>
-                <input
-                  name="name"
-                  type="text"
-                  placeholder="Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-                />
-                <label className="text-white font-medium">Purpose of Letter</label>
-                <input
-                  name="purposeOfLetter"
-                  type="text"
-                  placeholder="Describe the purpose of this request"
-                  value={formData.purposeOfLetter}
-                  onChange={handleChange}
-                  className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-                />
-              </div>
-              <div className="space-y-1 w-full">
-                <label className="text-white font-medium">Code</label>
-                <input
-                  name="code"
-                  type="text"
-                  placeholder="Code"
-                  value={formData.code}
-                  onChange={handleChange}
-                  className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-                />
-                <label className="text-white font-medium">Date</label>
-                <input
-                  name="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-                />
-                <label className="text-white font-medium">Document Type</label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-                >
-                  <option value="">Select Type</option>
-                  <option value="incoming">Incoming</option>
-                  <option value="outgoing">Outgoing</option>
-                </select>
-              </div>
-            </div>
+            <option value="">Select Year</option>
+            {years.map((year, index) => (
+              <option key={index} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
 
-            <div>
-              <h1 className="text-white font-medium">Upload Document</h1>
-              <input
-               ref={fileInputRef}
-                type="file"
-                name="document"
-                onChange={handleFileChange}
-                className="block w-[485px] rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-60 rounded-md bg-blue-600 py-2 px-4 text-white hover:bg-blue-700"
-            >
-              Submit
-            </button>
-          </form>
+        <div className="mt-8 w-1/2 relative bg-white flex self-start h-1/3">
+          <Bar
+            data={chartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: "Months",
+                  },
+                  grid: {
+                    display: false,
+                  },
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: "Document Count",
+                  },
+                  beginAtZero: true,
+                },
+              },
+            }}
+          />
         </div>
       </div>
     </DasboardLayout>

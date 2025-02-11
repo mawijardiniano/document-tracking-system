@@ -3,10 +3,10 @@ import Incoming from "./pages/admin/Incoming";
 import Outgoing from "./pages/admin/Outgoing";
 import Admin from "./pages/admin/Admin";
 import AdminDashBoard from "./pages/admin/Dashboard";
-
+import Settings from "./pages/admin/Settings";
 import { useAuth } from "./context/AuthContext";
 import PropTypes from "prop-types";
-import Scanned from "./pages/admin/scanned";
+import AddDocuments from "./pages/admin/addDocuments";
 
 const ProtectedRoute = ({ children }) => {
   const { isAdmin } = useAuth();
@@ -23,7 +23,8 @@ function App() {
       <Routes>
         <Route path="/admin/incoming" element={<Incoming />} />
         <Route path="/admin/outgoing" element={<Outgoing />} />
-        <Route path="/admin/Scanned" element={<Scanned />} />
+        <Route path="/admin/settings" element={<Settings />} />
+        <Route path="/admin/add" element={<AddDocuments />} />
         <Route path="/" element={<Admin />} />
         <Route path="/admin/dashboard" element={<AdminDashBoard />} />
       </Routes>
