@@ -162,7 +162,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Add New Document Form */}
         <div className="flex justify-center space-x-8 mt-4 flex-col">
           <div>
             <h1 className="text-3xl text-white relative font-bold pb-4">
