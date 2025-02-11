@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import Navbar from "./components/Navbar";
 import Incoming from "./pages/admin/Incoming";
 import Outgoing from "./pages/admin/Outgoing";
 import Admin from "./pages/admin/Admin";

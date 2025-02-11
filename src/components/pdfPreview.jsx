@@ -1,19 +1,46 @@
-// import React from "react";
-// import { Document, Page } from "react-pdf";
-// import { convertBase64ToBlob } from "../utils/fileupload"; // Import utility function
+import React, { useEffect, useState } from 'react';
+import { Document, Page } from 'react-pdf';
+import { convertBase64ToBlob } from "../utils/fileupload";
+import { pdfjs } from 'react-pdf';
 
-// const PdfPreview = ({ base64Data }) => {
-//   const blob = convertBase64ToBlob(base64Data);
-//   const url = URL.createObjectURL(blob); // Create a URL for the Blob
+// Use the Cloudflare CDN for the PDF.js worker script
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
 
-//   return (
-//     <div>
-//       <h3>PDF Preview:</h3>
-//       <Document file={url}>
-//         <Page pageNumber={1} />
-//       </Document>
-//     </div>
-//   );
-// };
+const PdfPreview = ({ base64Data }) => {
+  const [url, setUrl] = useState(null);
 
-// export default PdfPreview;
+  useEffect(() => {
+    try {
+      if (!base64Data || typeof base64Data !== 'string') {
+        throw new Error('Invalid or missing base64 data');
+      }
+
+      const blob = convertBase64ToBlob(base64Data);
+      const objectUrl = URL.createObjectURL(blob);
+      setUrl(objectUrl);
+
+      return () => {
+        if (url) {
+          URL.revokeObjectURL(url); // Cleanup the URL
+        }
+      };
+    } catch (error) {
+      console.error('Error in creating PDF preview: ', error);
+    }
+  }, [base64Data]);
+
+  if (!url) {
+    return <div>Loading...</div>; // Show loading text if URL is not yet created
+  }
+
+  return (
+    <div>
+      <h3>PDF Preview:</h3>
+      <Document file={url} onLoadError={(error) => console.error("Error loading PDF: ", error)}>
+        <Page pageNumber={1} />
+      </Document>
+    </div>
+  );
+};
+
+export default PdfPreview;

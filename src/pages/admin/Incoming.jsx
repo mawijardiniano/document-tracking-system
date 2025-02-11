@@ -1,12 +1,16 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import Layout from "./layout";
-
+import DocumentPreviewModal from "../../components/documentPreviewModal";
+import { convertBase64ToBlob } from "../../utils/fileupload";
+import { X } from "lucide-react";
 const Notification = ({ message, type }) => {
   if (!message) return null;
   return (
     <div
-      className={`absolute top-20 right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${type === "success" ? "bg-red-500" : "bg-red-500"}`}
+      className={`absolute top-20 right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${
+        type === "success" ? "bg-green-500" : "bg-red-500"
+      }`}
       style={{ zIndex: 1000 }}
     >
       {message}
@@ -19,7 +23,7 @@ const Incoming = () => {
   const [incoming, setIncoming] = useState([]);
   const [filteredDocs, setFilteredDocs] = useState([]);
   const [filterText, setFilterText] = useState("");
-    const [notification, setNotification] = useState(null);
+  const [notification, setNotification] = useState(null);
   const [formData, setFormData] = useState({
     agency: "",
     name: "",
@@ -33,7 +37,20 @@ const Incoming = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [setOpen, setIsOpen] = useState(false);
   const [selectedDocId, setSelectedDocId] = useState(null);
+  const [newFile, setNewFile] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState(null);
+
   const itemsPerPage = 15;
+
+  const handlePreview = (base64Data) => {
+    try {
+      const blob = convertBase64ToBlob(base64Data);
+      const url = URL.createObjectURL(blob);
+      setPdfUrl(url);
+    } catch (error) {
+      console.error("Error previewing the document:", error);
+    }
+  };
 
   const fetchDocument = async () => {
     try {
@@ -111,7 +128,10 @@ const Incoming = () => {
       setIncoming((prev) => prev.filter((doc) => doc._id !== id));
       setFilteredDocs((prev) => prev.filter((doc) => doc._id !== id));
       setIsOpen(false);
-      setNotification({ message: "Document Deleted successfully!", type: "success" });
+      setNotification({
+        message: "Document Deleted successfully!",
+        type: "error",
+      });
     } catch (error) {
       console.error("Error deleting document:", error);
     }
@@ -120,19 +140,42 @@ const Incoming = () => {
     }, 3000);
   };
 
-  
   const saveEdit = async () => {
     try {
-      await axios.put(
+      // Prepare form data for file upload (if new file is uploaded)
+      const formDataToSend = new FormData();
+      formDataToSend.append("agency", editDoc.agency);
+      formDataToSend.append("name", editDoc.name);
+      formDataToSend.append("code", editDoc.code);
+      formDataToSend.append("purposeOfLetter", editDoc.purposeOfLetter);
+      formDataToSend.append("date", editDoc.date);
+      formDataToSend.append("type", editDoc.type);
+  
+      // Check if a new file has been selected
+      if (newFile) {
+        formDataToSend.append("document", newFile);
+      }
+  
+      // Send the PUT request to update the document
+      const response = await axios.put(
         `http://localhost:5000/api/document/update-document/${editDoc._id}`,
-        editDoc
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Send as multipart form data
+          },
+        }
       );
+  
+      // Update the local state with the updated document
       setIncoming(
-        incoming.map((doc) => (doc._id === editDoc._id ? editDoc : doc))
+        incoming.map((doc) => (doc._id === editDoc._id ? response.data.document : doc))
       );
       setFilteredDocs(
-        filteredDocs.map((doc) => (doc._id === editDoc._id ? editDoc : doc))
+        filteredDocs.map((doc) => (doc._id === editDoc._id ? response.data.document : doc))
       );
+  
+      // Clear the form and reset the edit state
       setEditDoc(null);
       setFormData({
         agency: "",
@@ -142,14 +185,31 @@ const Incoming = () => {
         date: "",
         type: "",
       });
-      setNotification({ message: "Document Updated successfully!", type: "success" });
+      setNewFile(null);  // Clear the uploaded file
+  
+      setNotification({
+        message: "Document updated successfully!",
+        type: "success",
+      });
     } catch (error) {
       console.error("Error updating document:", error);
+      setNotification({
+        message: "Error updating document.",
+        type: "error",
+      });
     }
+  
+    // Clear notification after 3 seconds
     setTimeout(() => {
       setNotification(null);
     }, 3000);
   };
+  
+  const handleFileChange = (e) => {
+   
+    setNewFile(e.target.files[0]);
+  };
+  
 
   const handleEdit = (doc) => {
     setEditDoc(doc);
@@ -294,10 +354,13 @@ const Incoming = () => {
         <div>
           <h1 className="text-2xl font-semibold">Incoming Documents</h1>
         </div>
-       
+
         <div className="flex flex-row items-center justify-between py-2">
-        <Notification message={notification?.message} type={notification?.type} />
-        
+          <Notification
+            message={notification?.message}
+            type={notification?.type}
+          />
+
           <div className="flex items-center space-x-4">
             <select
               value={selectedMonth}
@@ -356,14 +419,15 @@ const Incoming = () => {
                   >
                     Purpose Of Letter
                   </th>
-                  <th
-                    className="px-1 py-1 border border-gray-200 w-30"
-                  >
+                  <th className="px-1 py-1 border border-gray-200 w-30">
                     Code
                   </th>
-                  
+
                   <th className="px-1 py-1 border border-gray-200 w-40">
                     Date
+                  </th>
+                  <th className="px-1 py-1 border border-gray-200 w-40">
+                    Document
                   </th>
                   <th className="px-1 py-1 border border-gray-200 w-40">
                     Actions
@@ -385,7 +449,7 @@ const Incoming = () => {
                             onChange={(e) =>
                               setEditDoc({ ...editDoc, agency: e.target.value })
                             }
-                            className="border p-1"
+                            className="border p-1 w-40"
                           />
                         </td>
                         <td className="px-4 py-1 border border-gray-200 text-sm">
@@ -395,18 +459,11 @@ const Incoming = () => {
                             onChange={(e) =>
                               setEditDoc({ ...editDoc, name: e.target.value })
                             }
-                            className="border p-1"
+                            className="border p-1 w-40"
                           />
                         </td>
                         <td
-                          className="px-4 py-1 border border-gray-200 text-sm"
-                          style={{
-                            width: "300px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
+                          className="px-4 py-1 border border-gray-200 text-sm">
                           <input
                             type="text"
                             value={editDoc.purposeOfLetter}
@@ -416,17 +473,11 @@ const Incoming = () => {
                                 purposeOfLetter: e.target.value,
                               })
                             }
-                            className="border p-1 "
+                            className="border p-1 w-40"
                           />
                         </td>
                         <td
                           className="px-1 py-1 border border-gray-200 text-sm"
-                          style={{
-                            width: "300px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
                         >
                           <input
                             type="text"
@@ -437,7 +488,7 @@ const Incoming = () => {
                                 code: e.target.value,
                               })
                             }
-                            className="border p-1 "
+                            className="border p-1 w-26"
                           />
                         </td>
                         <td className="px-4 py-1 border border-gray-200 text-sm">
@@ -450,6 +501,14 @@ const Incoming = () => {
                             className="border p-1"
                           />
                         </td>
+                        <td className="px-1 py-1 border border-gray-200 text-sm">
+  <input
+    type="file"
+    onChange={(e) => handleFileChange(e)}
+    className="border p-1 w-36"
+  />
+</td>
+
                         <td className="px-4 py-1 border border-gray-200 text-sm">
                           <button
                             onClick={saveEdit}
@@ -486,22 +545,33 @@ const Incoming = () => {
                             year: "numeric",
                           })}
                         </td>
-                        <td className="px-4 py-1 border border-gray-200 text-sm">
-                          <button
-                            onClick={() => handleEdit(doc)}
-                            className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
-                          >
-                            Edit
-                          </button>
-                          <button
+                        <td className="px-1 py-1 border border-gray-200 text-sm">
+                          {doc.fileName}
+                        </td>
+                        <td className="px-4 py-1 border-gray-200 text-sm text-center">
+                          <div className="flex justify-center items-center space-x-2">
+                            <button
+                              onClick={() => handleEdit(doc)}
+                              className="bg-blue-500 text-white px-2 py-1 rounded"
+                            >
+                              Edit
+                            </button>
+                            <button
                               onClick={() => {
-        setSelectedDocId(doc._id);
-        setIsOpen(true);
-      }}
-                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
-                          >
-                            Delete
-                          </button>
+                                setSelectedDocId(doc._id);
+                                setIsOpen(true);
+                              }}
+                              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
+                            >
+                              Delete
+                            </button>
+                            <button
+                              onClick={() => handlePreview(doc.fileData)}
+                              className="bg-green-500 text-white px-2 py-1 rounded"
+                            >
+                              Preview
+                            </button>
+                          </div>
                         </td>
                       </>
                     )}
@@ -509,32 +579,55 @@ const Incoming = () => {
                 ))}
               </tbody>
             </table>
-            <div className="bg-gray-500 ">
-  {setOpen && (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-50 z-50">
-        <div className="bg-white p-6 rounded-lg shadow-lg relative z-10 w-90">
-          <p className="font-medium">Are you sure you want to delete?</p>
-          <p>This will permanently delete the item and remove it from our servers.</p>
-          <div className="w-full flex justify-end items-end space-x-2">
-            <button
-              onClick={() => deleteDocument(selectedDocId)}
-              className="bg-red-500 text-white px-4 py-2 w-20 rounded mt-4"
-            >
-              Yes
-            </button>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="bg-white text-black border border-gray-400 px-4 py-2 rounded mt-4"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-  )}
-</div>
-           
+            {pdfUrl && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ">
+                <div className="bg-white p-5 rounded-lg shadow-lg w-3/4 h-full relative pt-16">
+                  <button
+                    onClick={() => setPdfUrl(null)}
+                    className="absolute top-4 right-4 text-gray-700 hover:text-red-500"
+                  >
+                    <X size={30} />
+                  </button>
 
+                  <iframe
+                    src={pdfUrl}
+                    width="100%"
+                    height="100%"
+                    title="PDF Preview"
+                  ></iframe>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-gray-500 ">
+              {setOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-50 z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg relative z-10 w-90">
+                    <p className="font-medium">
+                      Are you sure you want to delete?
+                    </p>
+                    <p>
+                      This will permanently delete the item and remove it from
+                      our servers.
+                    </p>
+                    <div className="w-full flex justify-end items-end space-x-2">
+                      <button
+                        onClick={() => deleteDocument(selectedDocId)}
+                        className="bg-red-500 text-white px-4 py-2 w-20 rounded mt-4"
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setIsOpen(false)}
+                        className="bg-white text-black border border-gray-400 px-4 py-2 rounded mt-4"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <p className="text-center text-gray-500 mt-4">
@@ -562,7 +655,6 @@ const Incoming = () => {
             </button>
           </div>
         </div>
-      
       </div>
     </Layout>
   );
