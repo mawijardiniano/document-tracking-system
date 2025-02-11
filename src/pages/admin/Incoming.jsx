@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import Layout from "./layout";
-import DocumentPreviewModal from "../../components/documentPreviewModal";
 import { convertBase64ToBlob } from "../../utils/fileupload";
 import { X } from "lucide-react";
 const Notification = ({ message, type }) => {
@@ -259,10 +258,10 @@ const Incoming = () => {
         }
   
         /* Column widths */
-        .agency-column { width: 20%; }
-        .name-column { width: 25%; }
+        .agency-column { width: 15%; }
+        .name-column { width: 15%; }
         .purpose-column { 
-          width: 40%; /* Allow the Purpose column to take up more space */
+          width: 30%; /* Allow the Purpose column to take up more space */
           word-wrap: break-word; 
           white-space: normal; 
         }
@@ -307,7 +306,7 @@ const Incoming = () => {
     printWindow.document.write("</head><body><h2>Incoming Documents</h2>");
 
     printWindow.document.write(
-      "<table><thead><tr><th class='agency-column'>Agency</th><th class='name-column'>Name</th><th class='purpose-column'>Purpose</th><th class='date-column'>Date</th></tr></thead><tbody>"
+      "<table><thead><tr><th class='agency-column'>Agency</th><th class='name-column'>Name</th><th class='purpose-column'>Purpose of Letter</th><th class='date-column'>Code</th><th class='date-column'>Date</th></tr></thead><tbody>"
     );
 
     filteredDocs.forEach((doc) => {
@@ -316,6 +315,7 @@ const Incoming = () => {
           <td class='agency-column'>${doc.agency}</td>
           <td class='name-column'>${doc.name}</td>
           <td class='purpose-column'>${doc.purposeOfLetter}</td>
+                    <td class='agency-column'>${doc.code}</td>
           <td class='date-column'>${formatDate(doc.date)}</td>
         </tr>`
       );

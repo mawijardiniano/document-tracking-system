@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, FileText, FileSymlink, LogOut, FileOutput, FileInput, HomeIcon } from 'lucide-react';
+import { Home, FileText, FileSymlink, LogOut, FileOutput,FilePlus, Settings, FileInput, HomeIcon } from 'lucide-react';
 import Dashboard from '../pages/admin/Dashboard';
 
 const Sidebar = () => {
@@ -21,6 +21,14 @@ const Sidebar = () => {
           </li>
           <li>
             <NavLink
+              to="/admin/add"
+              className={({ isActive }) => `${baseClasses} ${isActive ? activeClasses : ""}`}
+            >
+              <FilePlus size={20} /> Add Documents
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
               to="/admin/incoming"
               className={({ isActive }) => `${baseClasses} ${isActive ? activeClasses : ""}`}
             >
@@ -33,6 +41,22 @@ const Sidebar = () => {
               className={({ isActive }) => `${baseClasses} ${isActive ? activeClasses : ""}`}
             >
               <FileOutput size={20} /> Outgoing Documents
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/admin/blah"
+              className={({ isActive }) => `${baseClasses} ${isActive ? activeClasses : ""}`}
+            >
+              <FileOutput size={20} /> Blah Documents
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/admin/settings"
+              className={({ isActive }) => `${baseClasses} ${isActive ? activeClasses : ""}`}
+            >
+              <Settings size={20} /> Settings
             </NavLink>
           </li>
           <li>
