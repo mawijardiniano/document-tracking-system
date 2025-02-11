@@ -2,11 +2,24 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import Layout from "./layout";
 
+const Notification = ({ message, type }) => {
+  if (!message) return null;
+  return (
+    <div
+      className={`absolute top-20 right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${type === "success" ? "bg-red-500" : "bg-red-500"}`}
+      style={{ zIndex: 1000 }}
+    >
+      {message}
+    </div>
+  );
+};
+
 const Incoming = () => {
   const api = "http://localhost:5000/api/document/get-document";
   const [incoming, setIncoming] = useState([]);
   const [filteredDocs, setFilteredDocs] = useState([]);
   const [filterText, setFilterText] = useState("");
+    const [notification, setNotification] = useState(null);
   const [formData, setFormData] = useState({
     agency: "",
     name: "",
@@ -98,9 +111,13 @@ const Incoming = () => {
       setIncoming((prev) => prev.filter((doc) => doc._id !== id));
       setFilteredDocs((prev) => prev.filter((doc) => doc._id !== id));
       setIsOpen(false);
+      setNotification({ message: "Document Deleted successfully!", type: "success" });
     } catch (error) {
       console.error("Error deleting document:", error);
     }
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
   };
 
   
@@ -125,9 +142,13 @@ const Incoming = () => {
         date: "",
         type: "",
       });
+      setNotification({ message: "Document Updated successfully!", type: "success" });
     } catch (error) {
       console.error("Error updating document:", error);
     }
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
   };
 
   const handleEdit = (doc) => {
@@ -273,7 +294,10 @@ const Incoming = () => {
         <div>
           <h1 className="text-2xl font-semibold">Incoming Documents</h1>
         </div>
+       
         <div className="flex flex-row items-center justify-between py-2">
+        <Notification message={notification?.message} type={notification?.type} />
+        
           <div className="flex items-center space-x-4">
             <select
               value={selectedMonth}

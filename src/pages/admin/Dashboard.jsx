@@ -9,7 +9,7 @@ const Notification = ({ message, type }) => {
   if (!message) return null;
   return (
     <div
-      className={`absolute top-10 right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${type === "success" ? "bg-green-500" : "bg-red-500"}`}
+      className={`absolute right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${type === "success" ? "bg-green-500" : "bg-red-500"}`}
       style={{ zIndex: 1000 }}
     >
       {message}
@@ -114,7 +114,7 @@ const Dashboard = () => {
 
     setTimeout(() => {
       setNotification(null);
-    }, 5000);
+    }, 3000);
   };
 
   return (
