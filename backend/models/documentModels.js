@@ -25,10 +25,14 @@ const documentSchema = new mongoose.Schema({
     enum: ["incoming", "outgoing"],
     required: true,
   },
+  fileName: {
+    type: String, // Store the file name
+    required: true,
+  },
   fileData: {
-    type: String, // Store the Base64 string of the file
+    type: String, // Store file data as Base64 or URL
     required: false,
-  }
+  },
 });
 
 module.exports = mongoose.model("Document", documentSchema);
