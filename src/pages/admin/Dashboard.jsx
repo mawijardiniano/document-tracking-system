@@ -90,12 +90,10 @@ const Dashboard = () => {
     const months = moment.monthsShort();
     const incomingCounts = [];
     const outgoingCounts = [];
-
     months.forEach((month, index) => {
       const monthDocs = filteredDocs.filter(
         (doc) => moment(doc.date).month() === index
       );
-
       incomingCounts.push(
         monthDocs.filter((doc) => doc.type === "incoming").length
       );
