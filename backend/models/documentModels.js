@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-const { type } = require("os");
-
 
 const documentSchema = new mongoose.Schema({
   agency: {
@@ -22,10 +20,14 @@ const documentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  type : {
-    type : String,
-    enum : ["incoming", "outgoing"],
-    required: true
+  type: {
+    type: String,
+    enum: ["incoming", "outgoing"],
+    required: true,
+  },
+  fileData: {
+    type: String, // Store the Base64 string of the file
+    required: false,
   }
 });
 

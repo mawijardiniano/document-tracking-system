@@ -2,11 +2,26 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import Layout from "./layout";
 
+
+const Notification = ({ message, type }) => {
+  if (!message) return null;
+  return (
+    <div
+      className={`absolute top-20 right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${type === "success" ? "bg-red-500" : "bg-red-500"}`}
+      style={{ zIndex: 1000 }}
+    >
+      {message}
+    </div>
+  );
+};
+
+
 const Outgoing = () => {
   const api = "http://localhost:5000/api/document/get-document";
   const [outgoing, setOutgoing] = useState([]);
   const [filteredDocs, setFilteredDocs] = useState([]);
   const [filterText, setFilterText] = useState("");
+      const [notification, setNotification] = useState(null);
   const [formData, setFormData] = useState({
     agency: "",
     name: "",
@@ -98,9 +113,13 @@ const Outgoing = () => {
       setOutgoing((prev) => prev.filter((doc) => doc._id !== id));
       setFilteredDocs((prev) => prev.filter((doc) => doc._id !== id));
       setIsOpen(false);
+      setNotification({ message: "Document Updated successfully!", type: "success" });
     } catch (error) {
       console.error("Error deleting document:", error);
     }
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
   };
 
   const saveEdit = async () => {
@@ -124,9 +143,13 @@ const Outgoing = () => {
         date: "",
         type: "",
       });
+      setNotification({ message: "Document Updated successfully!", type: "success" });
     } catch (error) {
       console.error("Error updating document:", error);
     }
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
   };
 
   const handleEdit = (doc) => {
@@ -273,6 +296,7 @@ const Outgoing = () => {
           <h1 className="text-3xl font-semibold py-3">Outgoing Documents</h1>
         </div>
         <div className="flex flex-row items-center justify-between py-2">
+        <Notification message={notification?.message} type={notification?.type} />
           <div className="flex items-center space-x-4">
             <select
               value={selectedMonth}
@@ -331,10 +355,7 @@ const Outgoing = () => {
                   >
                     Purpose Of Letter
                   </th>
-                  <th
-                    className="px-1 py-1 border border-gray-200 w-30"
-               
-                  >
+                  <th className="px-1 py-1 border border-gray-200 w-30">
                     Code
                   </th>
                   <th className="px-1 py-1 border border-gray-200 w-40">
@@ -394,9 +415,7 @@ const Outgoing = () => {
                             className="border p-1 "
                           />
                         </td>
-                        <td
-                          className="px-4 py-1 border border-gray-200 text-sm"
-                        >
+                        <td className="px-4 py-1 border border-gray-200 text-sm">
                           <input
                             type="text"
                             value={editDoc.code}
@@ -419,7 +438,7 @@ const Outgoing = () => {
                             className="border p-1"
                           />
                         </td>
-                        <td className="px-4 py-1 border border-gray-200 text-sm">
+                        <td className="px-1 py-1 border border-gray-200 text-sm">
                           <button
                             onClick={saveEdit}
                             className="bg-green-500 text-white px-2 py-1 rounded mr-2"
@@ -467,7 +486,7 @@ const Outgoing = () => {
                               setSelectedDocId(doc._id);
                               setIsOpen(true);
                             }}
-                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
+                            className="bg-red-500 text-white px-2 py-1 rounded"
                           >
                             Delete
                           </button>
@@ -478,6 +497,36 @@ const Outgoing = () => {
                 ))}
               </tbody>
             </table>
+            
+            <div className="bg-gray-500 ">
+              {setOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-50 z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg relative z-10 w-90">
+                    <p className="font-medium">
+                      Are you sure you want to delete?
+                    </p>
+                    <p>
+                      This will permanently delete the item and remove it from
+                      our servers.
+                    </p>
+                    <div className="w-full flex justify-end items-end space-x-2">
+                      <button
+                        onClick={() => deleteDocument(selectedDocId)}
+                        className="bg-red-500 text-white px-4 py-2 w-20 rounded mt-4"
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setIsOpen(false)}
+                        className="bg-white text-black border border-gray-400 px-4 py-2 rounded mt-4"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <p className="text-center text-gray-500 mt-4">
@@ -505,31 +554,6 @@ const Outgoing = () => {
             </button>
           </div>
         </div>
-        {setOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg relative z-10 w-90">
-              <p className="font-medium">Are you sure you want to delete?</p>
-              <p>
-                This will permanently delete the item and remove it from our
-                servers.
-              </p>
-              <div className="w-full flex justify-end items-end space-x-2">
-                <button
-                  onClick={() => deleteDocument(selectedDocId)}
-                  className="bg-red-500 text-white px-4 py-2 w-20 rounded mt-4"
-                >
-                  Yes
-                </button>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="bg-white text-black border border-gray-400 px-4 py-2 rounded mt-4"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </Layout>
   );
