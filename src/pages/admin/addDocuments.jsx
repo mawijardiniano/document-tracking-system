@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import DasboardLayout from "./dashboardLayout";
 import AdminBG from "../../assets/bg2.jpg";
 import "../../App.css";
-import { FileInput, FileOutput, Files } from "lucide-react";
 
 const Notification = ({ message, type }) => {
   if (!message) return null;
@@ -16,26 +15,60 @@ const Notification = ({ message, type }) => {
     </div>
   );
 };
+
 const AddDocuments = () => {
-    const api = "http://localhost:5000/api/document/get-document";
+  const api = "http://localhost:5000/api/document/get-document";
   const add = "http://localhost:5000/api/document/add-document";
-  const uploadApi = "http://localhost:5000/api/document/upload";
+  const FETCHAPI = "http://localhost:5000/api/receiver/get-receiver";
+  const FETCHAGENCYAPI = "http://localhost:5000/api/agency/get-agency";
+  
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
   const [total, setTotal] = useState([]);
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
   const [notification, setNotification] = useState(null);
+  const [receivers, setReceivers] = useState([]);
+  const [filteredReceivers, setFilteredReceivers] = useState([]);
+  const [agencies, setAgencies] = useState([]);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isAgencyDropdownVisible, setIsAgencyDropdownVisible] = useState(false);
+  const inputRef = useRef(null); // Ref for the input field
+  const dropdownRef = useRef(null); // Ref for the dropdown container
+  const agencyDropdownRef = useRef(null); // Ref for the agency dropdown container
+
+  const getAgency = async () => {
+    try {
+      const response = await axios.get(FETCHAGENCYAPI);
+      setAgencies(response.data);
+    } catch (error) {
+      console.error("Error fetching agencies:", error);
+    }
+  };
+
+  useEffect(() => {
+    getAgency();
+  }, []);
+
+  const getReceivers = async () => {
+    try {
+      const response = await axios.get(FETCHAPI);
+      setReceivers(response.data);
+      setFilteredReceivers(response.data); // Set filtered receivers for searching
+    } catch (error) {
+      console.error("Error fetching receivers:", error);
+    }
+  };
+
+  useEffect(() => {
+    getReceivers();
+  }, []);
 
   const fetchDocument = async () => {
     try {
       const response = await axios.get(api);
-      const incomingDocs = response.data.filter(
-        (doc) => doc.type === "incoming"
-      );
-      const outgoingDocs = response.data.filter(
-        (doc) => doc.type === "outgoing"
-      );
+      const incomingDocs = response.data.filter((doc) => doc.type === "incoming");
+      const outgoingDocs = response.data.filter((doc) => doc.type === "outgoing");
 
       setTotal(response.data);
       setIncoming(incomingDocs);
@@ -61,15 +94,20 @@ const AddDocuments = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+    if (name === "name") {
+      const filtered = receivers.filter((receiver) =>
+        receiver.receiver.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredReceivers(filtered);
+    }
   };
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     setFile(selectedFile);
-
-    if (selectedFile) {
-    }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -103,8 +141,7 @@ const AddDocuments = () => {
         type: "",
       });
       setFile(null);
-
-      fileInputRef.current.value = null; 
+      fileInputRef.current.value = null;
       setNotification({ message: "Document uploaded successfully!", type: "success" });
 
       fetchDocument();
@@ -118,6 +155,36 @@ const AddDocuments = () => {
     }, 3000);
   };
 
+  useEffect(() => {
+  const handleClickOutside = (event) => {
+    // Close receiver dropdown if clicked outside of the input and dropdown
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target) &&
+      inputRef.current &&
+      !inputRef.current.contains(event.target)
+    ) {
+      setIsDropdownVisible(false);
+    }
+
+    // Close agency dropdown if clicked outside of the input and dropdown
+    if (
+      agencyDropdownRef.current &&
+      !agencyDropdownRef.current.contains(event.target) &&
+      inputRef.current &&
+      !inputRef.current.contains(event.target)
+    ) {
+      setIsAgencyDropdownVisible(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
   return (
     <DasboardLayout>
       <div
@@ -125,17 +192,11 @@ const AddDocuments = () => {
         style={{ backgroundImage: `url(${AdminBG})` }}
       >
         <div className="absolute inset-0 bg-blue-950 opacity-85"></div>
-
-       
         <Notification message={notification?.message} type={notification?.type} />
-
-
 
         <div className="flex justify-center space-x-8 mt-4 flex-col">
           <div>
-            <h1 className="text-4xl text-white relative font-bold pb-4">
-              Add New Document
-            </h1>
+            <h1 className="text-4xl text-white relative font-bold pb-4">Add New Document</h1>
           </div>
           <form
             onSubmit={handleSubmit}
@@ -144,23 +205,66 @@ const AddDocuments = () => {
             <div className="flex flex-row space-x-4 items-center justify-center">
               <div className="space-y-1 w-full">
                 <label className="text-white font-medium">Agency</label>
-                <input
-                  name="agency"
-                  type="text"
-                  placeholder="Enter agency name"
-                  value={formData.agency}
-                  onChange={handleChange}
-                  className="block rounded-md px-2 py-2 border border-black bg-white bg-opacity-50 w-full"
-                />
+                <div className="relative w-full" ref={agencyDropdownRef}>
+                  <input
+                    name="agency"
+                    value={formData.agency}
+                    onClick={() => setIsAgencyDropdownVisible(true)}
+                    onChange={handleChange}
+                    type="text"
+                    className="block rounded-md px-2 py-2 border border-black bg-white bg-opacity-50 w-full"
+                    placeholder="Enter agency name"
+                  />
+                  {isAgencyDropdownVisible && agencies.length > 0 && (
+                    <ul className="absolute bg-white border border-gray-300 mt-2 max-h-40 overflow-y-auto w-full z-10">
+                      {agencies.map((agency) => (
+                        <li
+                          key={agency._id}
+                          onClick={() => {
+                            setFormData({ ...formData, agency: agency.agencyName });
+                            setIsAgencyDropdownVisible(false);
+                          }}
+                          className="p-2 cursor-pointer hover:bg-gray-200"
+                        >
+                          {agency.agencyName}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
                 <label className="text-white font-medium">Name</label>
-                <input
-                  name="name"
-                  type="text"
-                  placeholder="Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-                />
+                <div className="relative w-full">
+                  <input
+                    ref={inputRef}
+                    name="name"
+                    value={formData.name}
+                    onClick={() => setIsDropdownVisible(true)}
+                    onChange={handleChange}
+                    type="text"
+                    className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+                    placeholder="Type receiver name"
+                  />
+                  {isDropdownVisible && filteredReceivers.length > 0 && (
+                    <ul
+                      ref={dropdownRef}
+                      className="absolute bg-white border border-gray-300 mt-2 max-h-40 overflow-y-auto w-full z-10"
+                    >
+                      {filteredReceivers.map((receiver) => (
+                        <li
+                          key={receiver._id}
+                          onClick={() => {
+                            setFormData({ ...formData, name: receiver.receiver });
+                            setIsDropdownVisible(false); 
+                          }}
+                          className="p-2 cursor-pointer hover:bg-gray-200"
+                        >
+                          {receiver.receiver}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
                 <label className="text-white font-medium">Purpose of Letter</label>
                 <input
                   name="purposeOfLetter"
@@ -170,25 +274,9 @@ const AddDocuments = () => {
                   onChange={handleChange}
                   className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
                 />
+                
               </div>
               <div className="space-y-1 w-full">
-                <label className="text-white font-medium">Code</label>
-                <input
-                  name="code"
-                  type="text"
-                  placeholder="Code"
-                  value={formData.code}
-                  onChange={handleChange}
-                  className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-                />
-                <label className="text-white font-medium">Date</label>
-                <input
-                  name="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-                />
                 <label className="text-white font-medium">Document Type</label>
                 <select
                   name="type"
@@ -200,31 +288,51 @@ const AddDocuments = () => {
                   <option value="incoming">Incoming</option>
                   <option value="outgoing">Outgoing</option>
                 </select>
+                <label className="text-white font-medium">Date</label>
+                <input
+                  name="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                  className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+                />
+
+                <label className="text-white font-medium">Code</label>
+                <input
+                  name="code"
+                  type="text"
+                  placeholder="Enter code for the document"
+                  value={formData.code}
+                  onChange={handleChange}
+                  className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+                />
+
+
               </div>
+              
             </div>
-
-            <div>
-              <h1 className="text-white font-medium">Upload Document</h1>
-              <input
-               ref={fileInputRef}
-                type="file"
-                name="document"
-                onChange={handleFileChange}
-                className="block w-[485px] rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-              />
+            <div className="space-y-1 w-[485px]">
+                  <label className="text-white font-medium">Upload Document</label>
+                  <input
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    type="file"
+                    className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+                  />
+                </div>
+            <div className="flex justify-center mt-4 space-x-5">
+              <button
+                type="submit"
+                className="rounded-md bg-yellow-500 text-white py-2 px-4"
+              >
+                Submit
+              </button>
             </div>
-
-            <button
-              type="submit"
-              className="w-60 rounded-md bg-blue-600 py-2 px-4 text-white hover:bg-blue-700"
-            >
-              Submit
-            </button>
           </form>
         </div>
       </div>
     </DasboardLayout>
-  )
-}
+  );
+};
 
-export default AddDocuments
+export default AddDocuments;
