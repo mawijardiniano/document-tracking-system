@@ -110,7 +110,6 @@ const AddReceiver = () => {
             </tbody>
           </table>
 
-          {/* Add/Edit Modal */}
           {isOpen && (
             <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-sm z-50">
               <div className="bg-white rounded-lg shadow-lg relative p-6 w-96">
