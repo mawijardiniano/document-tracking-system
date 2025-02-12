@@ -167,7 +167,7 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
-        <div className="flex justify-center space-x-4 relative bg-white  self-start">
+        <div className="flex left-14 top-6 justify-center space-x-4 relative bg-white  self-start">
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
@@ -182,7 +182,7 @@ const Dashboard = () => {
           </select>
         </div>
 
-        <div className="mt-8 w-1/2 relative bg-white flex self-start h-1/3">
+        <div className="mt-8 w-1/2 left-14 relative bg-white flex self-start h-1/3">
           <Bar
             data={chartData}
             options={{
