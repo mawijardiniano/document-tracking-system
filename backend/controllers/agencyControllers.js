@@ -1,114 +1,82 @@
 const Agency = require("../models/agencyModel");
 
-
+// ✅ Add a new agency
 const addAgency = async (req, res) => {
   try {
+    const { agencyName } = req.body;
 
-      const { agencyName } = req.body;
+    if (!agencyName) {
+      return res.status(400).json({ message: "Agency name is required." });
+    }
 
-      if (!agencyName) {
-        return res.status(400).json({ message: "All fields are required." });
-      }
+    const agency = new Agency({ agencyName });
+    await agency.save();
 
-
-      const agency = new Agency({
-        agencyName
-      });
-
-      await agency.save();
-
-      return res.status(201).json({
-        message: "Agency added successfully",
-        agency,
-      });
-    
+    return res.status(201).json({ message: "Agency added successfully", agency });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-
-
-// ✅ Get all documents
-const getDocument = async (req, res) => {
+// ✅ Get all agencies
+const getAgency = async (req, res) => {
   try {
-    const document = await Document.find();
-    res.json(document);
+    const agencies = await Agency.find();
+    res.json(agencies);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-// ✅ Delete a document by ID
-const deleteDocument = async (req, res) => {
+// ✅ Delete an agency by ID
+const deleteAgency = async (req, res) => {
   try {
     const { id } = req.params;
+    
     if (!id) {
-      return res.status(400).json({ message: "Document ID is required" });
+      return res.status(400).json({ message: "Agency ID is required" });
     }
 
-    const deletedDocument = await Document.findByIdAndDelete(id);
+    const deletedAgency = await Agency.findByIdAndDelete(id);
 
-    if (!deletedDocument) {
-      return res.status(404).json({ message: "Document not found" });
+    if (!deletedAgency) {
+      return res.status(404).json({ message: "Agency not found" });
     }
 
-    res.json({ message: "Document deleted successfully", deletedDocument });
+    res.json({ message: "Agency deleted successfully", deletedAgency });
   } catch (error) {
-    console.error("Delete Document Error:", error);
+    console.error("Delete Agency Error:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-
-const updateDocument = async (req, res) => {
+// ✅ Update an agency
+const updateAgency = async (req, res) => {
   try {
-    upload(req, res, async (err) => {
-      if (err) {
-        return res.status(400).json({ message: "Error uploading file" });
-      }
+    const { id } = req.params;
+    const { agencyName } = req.body;
 
-      const { agency, purposeOfLetter, date, name, code, type } = req.body;
-      const fileName = req.file ? req.file.originalname : null;  
-      const fileData = req.file ? req.file.buffer.toString("base64") : null; 
-      if (!agency || !purposeOfLetter || !date || !code || !type) {
-        return res.status(400).json({ message: "All fields are required." });
-      }
+    if (!id || !agencyName) {
+      return res.status(400).json({ message: "Agency ID and name are required." });
+    }
 
-      const document = await Document.findById(req.params.id);
-      if (!document) {
-        return res.status(404).json({ message: "Document not found" });
-      }
+    const updatedAgency = await Agency.findByIdAndUpdate(
+      id,
+      { agencyName },
+      { new: true } 
+    );
 
-      // Update the document fields
-      document.agency = agency;
-      document.purposeOfLetter = purposeOfLetter;
-      document.date = date;
-      document.name = name;
-      document.code = code;
-      document.type = type;
+    if (!updatedAgency) {
+      return res.status(404).json({ message: "Agency not found" });
+    }
 
-      // Update file details if a new file is uploaded
-      if (fileName && fileData) {
-        document.fileName = fileName;
-        document.fileData = fileData;
-      }
-
-      // Save the updated document
-      await document.save();
-
-      // Return the updated document
-      return res.status(200).json({
-        message: "Document updated successfully",
-        document,
-      });
-    });
+    res.json({ message: "Agency updated successfully", updatedAgency });
   } catch (error) {
-    console.error(error);
+    console.error("Update Agency Error:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-module.exports = { addAgency, getDocument, deleteDocument, updateDocument };
+module.exports = { addAgency, getAgency, deleteAgency, updateAgency };

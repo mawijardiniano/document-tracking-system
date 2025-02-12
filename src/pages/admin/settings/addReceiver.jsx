@@ -1,0 +1,183 @@
+import React, { useState, useEffect } from "react";
+import Layout from "../layout";
+import axios from "axios";
+
+const AddReceiver = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [receivers, setReceivers] = useState([]);
+  const [receiverName, setReceiverName] = useState("");
+  const [editingReceiver, setEditingReceiver] = useState(null);
+  const [receiverToDelete, setReceiverToDelete] = useState(null);
+
+  const FETCHAPI = "http://localhost:5000/api/receiver/get-receiver";
+  const ADDRECEIVER = "http://localhost:5000/api/receiver/add-receiver";
+  const EDITRECEIVER = "http://localhost:5000/api/receiver/edit-receiver";
+  const DELETERECEIVER = "http://localhost:5000/api/receiver/delete-receiver";
+
+  const getReceivers = async () => {
+    try {
+      const response = await axios.get(FETCHAPI);
+      setReceivers(response.data);
+    } catch (error) {
+      console.error("Error fetching receivers:", error);
+    }
+  };
+
+  useEffect(() => {
+    getReceivers();
+  }, []);
+
+  const handleEdit = (receiver) => {
+    setReceiverName(receiver.receiver);
+    setEditingReceiver(receiver);
+    setIsOpen(true);
+  };
+
+  const handleSaveReceiver = async () => {
+    try {
+      if (editingReceiver) {
+        await axios.put(`${EDITRECEIVER}/${editingReceiver._id}`, { receiver: receiverName });
+      } else {
+        await axios.post(ADDRECEIVER, { receiver: receiverName });
+      }
+      setReceiverName("");
+      setEditingReceiver(null);
+      getReceivers();
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error saving receiver:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`${DELETERECEIVER}/${receiverToDelete._id}`);
+      getReceivers();
+      setDeleteModalOpen(false);
+      setReceiverToDelete(null);
+    } catch (error) {
+      console.error("Error deleting receiver:", error);
+    }
+  };
+
+  return (
+    <Layout>
+      <div className="p-8 flex-col">
+        <div className="flex justify-between items-end">
+          <h1 className="text-3xl font-bold">Receiver</h1>
+          <button
+            onClick={() => setIsOpen(true)}
+            className="bg-black text-white px-6 py-1 rounded-md"
+          >
+            Add Receiver
+          </button>
+        </div>
+
+        <div className="pt-6">
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border border-gray-300 px-4 py-1 w-full">Receiver</th>
+                <th className="border border-gray-300 px-3 py-1 w-[200px] text-center">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {receivers.map((receiver) => (
+                <tr key={receiver._id}>
+                  <td className="border border-gray-300 px-4 py-2">{receiver.receiver}</td>
+                  <td className="border border-gray-300 px-3 py-2 flex justify-center gap-2 w-[200px]">
+                    <button
+                      onClick={() => handleEdit(receiver)}
+                      className="px-4 py-1 text-sm bg-blue-500 text-white rounded"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        setReceiverToDelete(receiver);
+                        setDeleteModalOpen(true);
+                      }}
+                      className="px-4 py-1 text-sm bg-red-500 text-white rounded"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Add/Edit Modal */}
+          {isOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-sm z-50">
+              <div className="bg-white rounded-lg shadow-lg relative p-6 w-96">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="font-medium text-lg">{editingReceiver ? "Edit Receiver" : "Add Receiver"}</h2>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      setEditingReceiver(null);
+                      setReceiverName("");
+                    }}
+                    className="text-gray-600 hover:text-black"
+                  >
+                    ✖
+                  </button>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium">Receiver Name</label>
+                  <input
+                    value={receiverName}
+                    onChange={(e) => setReceiverName(e.target.value)}
+                    placeholder="Enter receiver name"
+                    className="border border-gray-400 py-1 px-2 mt-1 rounded"
+                  />
+                </div>
+
+                <div className="pt-4 flex justify-end">
+                  <button
+                    onClick={handleSaveReceiver}
+                    className="bg-black text-white px-4 py-1 rounded-md"
+                  >
+                    {editingReceiver ? "Update" : "Add"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Delete Confirmation Modal */}
+          {deleteModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-sm z-50">
+              <div className="bg-white rounded-lg shadow-lg relative p-6 w-96">
+                <h2 className="font-medium text-lg mb-4">Confirm Deletion</h2>
+                <p>Are you sure you want to delete this receiver?</p>
+
+                <div className="pt-4 flex justify-end gap-4">
+                  <button
+                    onClick={() => setDeleteModalOpen(false)}
+                    className="px-4 py-1 bg-gray-300 text-black rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="px-4 py-1 bg-red-500 text-white rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default AddReceiver;
