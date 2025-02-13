@@ -79,6 +79,7 @@ const Incoming = () => {
       const agencyMatch = doc.agency
         .toLowerCase()
         .includes(filterText.toLowerCase());
+        
       return yearMatch && monthMatch && agencyMatch;
     });
     setFilteredDocs(filtered);

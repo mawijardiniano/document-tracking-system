@@ -1,8 +1,9 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
-import Layout from "./layout";
-import { convertBase64ToBlob } from "../../utils/fileupload";
 import { X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { convertBase64ToBlob } from "../../utils/fileupload";
+import Layout from "./layout";
+
 const Notification = ({ message, type }) => {
   if (!message) return null;
   return (
@@ -38,7 +39,6 @@ const Outgoing = () => {
   const [selectedDocId, setSelectedDocId] = useState(null);
   const [newFile, setNewFile] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
-
   const itemsPerPage = 15;
 
   const handlePreview = (base64Data) => {
