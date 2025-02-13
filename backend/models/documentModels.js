@@ -26,8 +26,8 @@ const documentSchema = new mongoose.Schema({
     required: true,
   },
   fileName: {
-    type: String, // Store the file name
-    required: true,
+    type: String, 
+    required: false,
   },
   fileData: {
     type: String, // Store file data as Base64 or URL

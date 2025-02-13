@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import DasboardLayout from "./dashboardLayout";
-import AdminBG from "../../assets/bg2.jpg";
+import React, { useEffect, useRef, useState } from "react";
 import "../../App.css";
+import AdminBG from "../../assets/bg2.jpg";
+import DasboardLayout from "./dashboardLayout";
 
 const Notification = ({ message, type }) => {
   if (!message) return null;
   return (
     <div
-      className={`absolute right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${type === "success" ? "bg-green-500" : "bg-red-500"}`}
+      className={`absolute right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${
+        type === "success" ? "bg-green-500" : "bg-red-500"
+      }`}
       style={{ zIndex: 1000 }}
     >
       {message}
@@ -21,7 +23,7 @@ const AddDocuments = () => {
   const add = "http://localhost:5000/api/document/add-document";
   const FETCHAPI = "http://localhost:5000/api/receiver/get-receiver";
   const FETCHAGENCYAPI = "http://localhost:5000/api/agency/get-agency";
-  
+
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
   const [total, setTotal] = useState([]);
@@ -67,8 +69,12 @@ const AddDocuments = () => {
   const fetchDocument = async () => {
     try {
       const response = await axios.get(api);
-      const incomingDocs = response.data.filter((doc) => doc.type === "incoming");
-      const outgoingDocs = response.data.filter((doc) => doc.type === "outgoing");
+      const incomingDocs = response.data.filter(
+        (doc) => doc.type === "incoming"
+      );
+      const outgoingDocs = response.data.filter(
+        (doc) => doc.type === "outgoing"
+      );
 
       setTotal(response.data);
       setIncoming(incomingDocs);
@@ -91,6 +97,66 @@ const AddDocuments = () => {
     type: "",
   });
 
+  useEffect(() => {
+    if (formData.type) {
+      fetchLastCode();
+    }
+  }, [formData.type]);
+
+  const fetchLastCode = async () => {
+    try {
+      const res = await axios.get(api);
+      const allDocs = res.data;
+
+      // Get the current year (last two digits)
+      const currentYear = new Date().getFullYear().toString().slice(-2);
+
+      // Set prefix based on type selection
+      let prefix;
+      if (formData.type === "incoming") {
+        prefix = "INC";
+      } else if (formData.type === "outgoing") {
+        prefix = "OUT";
+      } else {
+        console.error("Invalid document type:", formData.type);
+        return; // Exit if type is not valid
+      }
+
+      console.log("Selected prefix:", prefix);
+
+      // Filter documents by the current year and the selected prefix (type)
+      const filteredDocs = allDocs
+        .filter(
+          (doc) =>
+            doc.type === formData.type &&
+            doc.code &&
+            doc.code.startsWith(`${prefix}-${currentYear}-`)
+        )
+        .sort((a, b) => b.code.localeCompare(a.code)); // Sort to get the last code
+
+      console.log("Filtered docs for", formData.type, ":", filteredDocs);
+
+      let newCode;
+      if (filteredDocs.length > 0) {
+        const lastCode = filteredDocs[0].code;
+        const lastNumber = parseInt(lastCode.split("-")[2], 10); // Get the number after the year
+
+        // Generate the new code based on the last one
+        newCode = `${prefix}-${currentYear}-${String(lastNumber + 1).padStart(
+          3,
+          "0"
+        )}`;
+      } else {
+        // If no documents are found for the current year, start from 001
+        newCode = `${prefix}-${currentYear}-001`;
+      }
+
+      setFormData((prev) => ({ ...prev, code: newCode }));
+    } catch (error) {
+      console.error("Error fetching last document:", error);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -110,12 +176,6 @@ const AddDocuments = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!file) {
-      alert("Please select a file.");
-      return;
-    }
-
     const formDataToSend = new FormData();
     formDataToSend.append("agency", formData.agency);
     formDataToSend.append("name", formData.name);
@@ -142,7 +202,10 @@ const AddDocuments = () => {
       });
       setFile(null);
       fileInputRef.current.value = null;
-      setNotification({ message: "Document uploaded successfully!", type: "success" });
+      setNotification({
+        message: "Document uploaded successfully!",
+        type: "success",
+      });
 
       fetchDocument();
     } catch (error) {
@@ -156,34 +219,33 @@ const AddDocuments = () => {
   };
 
   useEffect(() => {
-  const handleClickOutside = (event) => {
-    // Close receiver dropdown if clicked outside of the input and dropdown
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target) &&
-      inputRef.current &&
-      !inputRef.current.contains(event.target)
-    ) {
-      setIsDropdownVisible(false);
-    }
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target)
+      ) {
+        setIsDropdownVisible(false);
+      }
 
-    // Close agency dropdown if clicked outside of the input and dropdown
-    if (
-      agencyDropdownRef.current &&
-      !agencyDropdownRef.current.contains(event.target) &&
-      inputRef.current &&
-      !inputRef.current.contains(event.target)
-    ) {
-      setIsAgencyDropdownVisible(false);
-    }
-  };
+      // Close agency dropdown if clicked outside of the input and dropdown
+      if (
+        agencyDropdownRef.current &&
+        !agencyDropdownRef.current.contains(event.target) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target)
+      ) {
+        setIsAgencyDropdownVisible(false);
+      }
+    };
 
-  document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <DasboardLayout>
@@ -192,11 +254,16 @@ const AddDocuments = () => {
         style={{ backgroundImage: `url(${AdminBG})` }}
       >
         <div className="absolute inset-0 bg-blue-950 opacity-85"></div>
-        <Notification message={notification?.message} type={notification?.type} />
+        <Notification
+          message={notification?.message}
+          type={notification?.type}
+        />
 
         <div className="flex justify-center space-x-8 mt-4 flex-col">
           <div>
-            <h1 className="text-4xl text-white relative font-bold pb-4">Add New Document</h1>
+            <h1 className="text-4xl text-white relative font-bold pb-4">
+              Add New Document
+            </h1>
           </div>
           <form
             onSubmit={handleSubmit}
@@ -221,7 +288,10 @@ const AddDocuments = () => {
                         <li
                           key={agency._id}
                           onClick={() => {
-                            setFormData({ ...formData, agency: agency.agencyName });
+                            setFormData({
+                              ...formData,
+                              agency: agency.agencyName,
+                            });
                             setIsAgencyDropdownVisible(false);
                           }}
                           className="p-2 cursor-pointer hover:bg-gray-200"
@@ -254,8 +324,11 @@ const AddDocuments = () => {
                         <li
                           key={receiver._id}
                           onClick={() => {
-                            setFormData({ ...formData, name: receiver.receiver });
-                            setIsDropdownVisible(false); 
+                            setFormData({
+                              ...formData,
+                              name: receiver.receiver,
+                            });
+                            setIsDropdownVisible(false);
                           }}
                           className="p-2 cursor-pointer hover:bg-gray-200"
                         >
@@ -265,7 +338,9 @@ const AddDocuments = () => {
                     </ul>
                   )}
                 </div>
-                <label className="text-white font-medium">Purpose of Letter</label>
+                <label className="text-white font-medium">
+                  Purpose of Letter
+                </label>
                 <input
                   name="purposeOfLetter"
                   type="text"
@@ -274,7 +349,6 @@ const AddDocuments = () => {
                   onChange={handleChange}
                   className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
                 />
-                
               </div>
               <div className="space-y-1 w-full">
                 <label className="text-white font-medium">Document Type</label>
@@ -306,24 +380,21 @@ const AddDocuments = () => {
                   onChange={handleChange}
                   className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
                 />
-
-
               </div>
-              
             </div>
             <div className="space-y-1 w-[485px]">
-                  <label className="text-white font-medium">Upload Document</label>
-                  <input
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    type="file"
-                    className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
-                  />
-                </div>
+              <label className="text-white font-medium">Upload Document</label>
+              <input
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                type="file"
+                className="block w-full rounded-md px-2 py-2 border border-black bg-white bg-opacity-50"
+              />
+            </div>
             <div className="flex justify-center mt-4 space-x-5">
               <button
                 type="submit"
-                className="rounded-md bg-yellow-500 text-white py-2 px-4"
+                className="rounded-md bg-yellow-500 text-white py-2 px-4 hover:bg-yellow-600 transition duration-200"
               >
                 Submit
               </button>

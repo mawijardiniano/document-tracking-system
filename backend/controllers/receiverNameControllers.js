@@ -3,7 +3,7 @@ const Receiver = require("../models/receiverNameModel");
 // Add Receiver
 const addReceiver = async (req, res) => {
   try {
-    const { receiver } = req.body;
+    const { receiver,position } = req.body;
 
     if (!receiver) {
       return res.status(400).json({ message: "All fields are required." });
@@ -11,6 +11,7 @@ const addReceiver = async (req, res) => {
 
     const receiverName = new Receiver({
       receiver,
+      position
     });
 
     await receiverName.save(); // Save the receiver
@@ -40,15 +41,15 @@ const getReceivers = async (req, res) => {
 const editReceiver = async (req, res) => {
   try {
     const { id } = req.params;
-    const { receiver } = req.body;
+    const { receiver,position } = req.body;
 
-    if (!receiver) {
+    if (!receiver || !position) {
       return res.status(400).json({ message: "Receiver name is required." });
     }
 
     const updatedReceiver = await Receiver.findByIdAndUpdate(
       id,
-      { receiver },
+      { receiver,position },
       { new: true }
     );
 
