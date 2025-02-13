@@ -86,50 +86,58 @@ const deleteDocument = async (req, res) => {
 
 const updateDocument = async (req, res) => {
   try {
-    upload(req, res, async (err) => {
-      if (err) {
-        return res.status(400).json({ message: "Error uploading file" });
-      }
-
-      const { agency, purposeOfLetter, date, name, code, type } = req.body;
-      const fileName = req.file ? req.file.originalname : null;  
-      const fileData = req.file ? req.file.buffer.toString("base64") : null; 
-      if (!agency || !purposeOfLetter || !date || !code || !type) {
-        return res.status(400).json({ message: "All fields are required." });
-      }
-
-      const document = await Document.findById(req.params.id);
-      if (!document) {
-        return res.status(404).json({ message: "Document not found" });
-      }
-
-      // Update the document fields
-      document.agency = agency;
-      document.purposeOfLetter = purposeOfLetter;
-      document.date = date;
-      document.name = name;
-      document.code = code;
-      document.type = type;
-
-      // Update file details if a new file is uploaded
-      if (fileName && fileData) {
-        document.fileName = fileName;
-        document.fileData = fileData;
-      }
-
-      // Save the updated document
-      await document.save();
-
-      // Return the updated document
-      return res.status(200).json({
-        message: "Document updated successfully",
-        document,
+    // Use a Promise wrapper for `upload()` to properly handle async/await
+    await new Promise((resolve, reject) => {
+      upload(req, res, (err) => {
+        if (err) {
+          reject(res.status(400).json({ message: "Error uploading file" }));
+        } else {
+          resolve();
+        }
       });
     });
+
+    const { agency, purposeOfLetter, date, name, code, type } = req.body;
+
+    if (!agency || !purposeOfLetter || !date || !code || !type) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const document = await Document.findById(req.params.id);
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    // Update document fields
+    document.agency = agency;
+    document.purposeOfLetter = purposeOfLetter;
+    document.date = date;
+    document.name = name;
+    document.code = code;
+    document.type = type;
+
+
+    if (req.file) {
+      document.fileName = req.file.originalname || document.fileName; 
+      document.fileData = req.file.buffer.toString("base64");
+    }
+
+
+    if (!document.fileName) {
+      return res.status(400).json({ message: "File name is required." });
+    }
+
+    await document.save();
+
+    return res.status(200).json({
+      message: "Document updated successfully",
+      document,
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Error updating document:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 module.exports = { addDocument, getDocument, deleteDocument, updateDocument };
