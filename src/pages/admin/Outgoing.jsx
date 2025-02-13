@@ -1,13 +1,15 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import Layout from "./layout";
-
-
+import { convertBase64ToBlob } from "../../utils/fileupload";
+import { X } from "lucide-react";
 const Notification = ({ message, type }) => {
   if (!message) return null;
   return (
     <div
-      className={`absolute top-20 right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${type === "success" ? "bg-red-500" : "bg-red-500"}`}
+      className={`absolute top-20 right-5 transform -translate-x-1/2 p-4 rounded-md text-white shadow-lg ${
+        type === "success" ? "bg-green-500" : "bg-red-500"
+      }`}
       style={{ zIndex: 1000 }}
     >
       {message}
@@ -15,13 +17,12 @@ const Notification = ({ message, type }) => {
   );
 };
 
-
 const Outgoing = () => {
   const api = "http://localhost:5000/api/document/get-document";
   const [outgoing, setOutgoing] = useState([]);
   const [filteredDocs, setFilteredDocs] = useState([]);
   const [filterText, setFilterText] = useState("");
-      const [notification, setNotification] = useState(null);
+  const [notification, setNotification] = useState(null);
   const [formData, setFormData] = useState({
     agency: "",
     name: "",
@@ -35,7 +36,20 @@ const Outgoing = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [setOpen, setIsOpen] = useState(false);
   const [selectedDocId, setSelectedDocId] = useState(null);
+  const [newFile, setNewFile] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState(null);
+
   const itemsPerPage = 15;
+
+  const handlePreview = (base64Data) => {
+    try {
+      const blob = convertBase64ToBlob(base64Data);
+      const url = URL.createObjectURL(blob);
+      setPdfUrl(url);
+    } catch (error) {
+      console.error("Error previewing the document:", error);
+    }
+  };
 
   const fetchDocument = async () => {
     try {
@@ -113,7 +127,10 @@ const Outgoing = () => {
       setOutgoing((prev) => prev.filter((doc) => doc._id !== id));
       setFilteredDocs((prev) => prev.filter((doc) => doc._id !== id));
       setIsOpen(false);
-      setNotification({ message: "Document Updated successfully!", type: "success" });
+      setNotification({
+        message: "Document Deleted successfully!",
+        type: "error",
+      });
     } catch (error) {
       console.error("Error deleting document:", error);
     }
@@ -124,16 +141,51 @@ const Outgoing = () => {
 
   const saveEdit = async () => {
     try {
-      await axios.put(
+      console.log("Starting document update...");
+  
+      const formDataToSend = new FormData();
+      formDataToSend.append("agency", editDoc.agency);
+      formDataToSend.append("name", editDoc.name);
+      formDataToSend.append("code", editDoc.code);
+      formDataToSend.append("purposeOfLetter", editDoc.purposeOfLetter);
+      formDataToSend.append("date", editDoc.date);
+      formDataToSend.append("type", editDoc.type);
+  
+      if (newFile) {
+        formDataToSend.append("document", newFile);
+        console.log("New file added:", newFile.name);
+      } else {
+        console.log("No new file uploaded.");
+      }
+  
+      console.log("FormData to send:");
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`${key}:`, value);
+      }
+  
+      const response = await axios.put(
         `http://localhost:5000/api/document/update-document/${editDoc._id}`,
-        editDoc
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
+  
+      console.log("Server response:", response.data);
+  
       setOutgoing(
-        outgoing.map((doc) => (doc._id === editDoc._id ? editDoc : doc))
+        outgoing.map((doc) =>
+          doc._id === editDoc._id ? response.data.document : doc
+        )
       );
       setFilteredDocs(
-        filteredDocs.map((doc) => (doc._id === editDoc._id ? editDoc : doc))
+        filteredDocs.map((doc) =>
+          doc._id === editDoc._id ? response.data.document : doc
+        )
       );
+  
       setEditDoc(null);
       setFormData({
         agency: "",
@@ -143,14 +195,34 @@ const Outgoing = () => {
         date: "",
         type: "",
       });
-      setNotification({ message: "Document Updated successfully!", type: "success" });
+      setNewFile(null);
+  
+      console.log("Document updated successfully!");
+      setNotification({
+        message: "Document updated successfully!",
+        type: "success",
+      });
     } catch (error) {
       console.error("Error updating document:", error);
+      if (error.response) {
+        console.error("Server Error Response:", error.response.data);
+      }
+  
+      setNotification({
+        message: "Error updating document.",
+        type: "error",
+      });
     }
+  
     setTimeout(() => {
       setNotification(null);
     }, 3000);
   };
+  
+  const handleFileChange = (e) => {
+    setNewFile(e.target.files[0]);
+  };
+  
 
   const handleEdit = (doc) => {
     setEditDoc(doc);
@@ -200,10 +272,10 @@ const Outgoing = () => {
         }
   
         /* Column widths */
-        .agency-column { width: 20%; }
-        .name-column { width: 25%; }
+        .agency-column { width: 15%; }
+        .name-column { width: 15%; }
         .purpose-column { 
-          width: 40%; /* Allow the Purpose column to take up more space */
+          width: 30%; /* Allow the Purpose column to take up more space */
           word-wrap: break-word; 
           white-space: normal; 
         }
@@ -248,7 +320,7 @@ const Outgoing = () => {
     printWindow.document.write("</head><body><h2>Outgoing Documents</h2>");
 
     printWindow.document.write(
-      "<table><thead><tr><th class='agency-column'>Agency</th><th class='name-column'>Name</th><th class='purpose-column'>Purpose</th><th class='date-column'>Date</th></tr></thead><tbody>"
+      "<table><thead><tr><th class='agency-column'>Agency</th><th class='name-column'>Name</th><th class='purpose-column'>Purpose of Letter</th><th class='date-column'>Code</th><th class='date-column'>Date</th></tr></thead><tbody>"
     );
 
     filteredDocs.forEach((doc) => {
@@ -257,6 +329,7 @@ const Outgoing = () => {
           <td class='agency-column'>${doc.agency}</td>
           <td class='name-column'>${doc.name}</td>
           <td class='purpose-column'>${doc.purposeOfLetter}</td>
+                    <td class='agency-column'>${doc.code}</td>
           <td class='date-column'>${formatDate(doc.date)}</td>
         </tr>`
       );
@@ -293,10 +366,15 @@ const Outgoing = () => {
     <Layout>
       <div className="flex flex-col px-6 py-2">
         <div>
-          <h1 className="text-3xl font-semibold py-3">Outgoing Documents</h1>
+          <h1 className="text-2xl font-semibold">Outgoing Documents</h1>
         </div>
+
         <div className="flex flex-row items-center justify-between py-2">
-        <Notification message={notification?.message} type={notification?.type} />
+          <Notification
+            message={notification?.message}
+            type={notification?.type}
+          />
+
           <div className="flex items-center space-x-4">
             <select
               value={selectedMonth}
@@ -358,8 +436,12 @@ const Outgoing = () => {
                   <th className="px-1 py-1 border border-gray-200 w-30">
                     Code
                   </th>
+
                   <th className="px-1 py-1 border border-gray-200 w-40">
                     Date
+                  </th>
+                  <th className="px-1 py-1 border border-gray-200 w-40">
+                    Document
                   </th>
                   <th className="px-1 py-1 border border-gray-200 w-40">
                     Actions
@@ -381,7 +463,7 @@ const Outgoing = () => {
                             onChange={(e) =>
                               setEditDoc({ ...editDoc, agency: e.target.value })
                             }
-                            className="border p-1"
+                            className="border p-1 w-40"
                           />
                         </td>
                         <td className="px-4 py-1 border border-gray-200 text-sm">
@@ -391,18 +473,11 @@ const Outgoing = () => {
                             onChange={(e) =>
                               setEditDoc({ ...editDoc, name: e.target.value })
                             }
-                            className="border p-1"
+                            className="border p-1 w-40"
                           />
                         </td>
                         <td
-                          className="px-4 py-1 border border-gray-200 text-sm"
-                          style={{
-                            width: "300px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
+                          className="px-4 py-1 border border-gray-200 text-sm">
                           <input
                             type="text"
                             value={editDoc.purposeOfLetter}
@@ -412,10 +487,12 @@ const Outgoing = () => {
                                 purposeOfLetter: e.target.value,
                               })
                             }
-                            className="border p-1 "
+                            className="border p-1 w-40"
                           />
                         </td>
-                        <td className="px-4 py-1 border border-gray-200 text-sm">
+                        <td
+                          className="px-1 py-1 border border-gray-200 text-sm"
+                        >
                           <input
                             type="text"
                             value={editDoc.code}
@@ -425,7 +502,7 @@ const Outgoing = () => {
                                 code: e.target.value,
                               })
                             }
-                            className="border p-1 "
+                            className="border p-1 w-26"
                           />
                         </td>
                         <td className="px-4 py-1 border border-gray-200 text-sm">
@@ -439,6 +516,14 @@ const Outgoing = () => {
                           />
                         </td>
                         <td className="px-1 py-1 border border-gray-200 text-sm">
+  <input
+    type="file"
+    onChange={(e) => handleFileChange(e)}
+    className="border p-1 w-36"
+  />
+</td>
+
+                        <td className="px-4 py-1 border border-gray-200 text-sm">
                           <button
                             onClick={saveEdit}
                             className="bg-green-500 text-white px-2 py-1 rounded mr-2"
@@ -464,7 +549,7 @@ const Outgoing = () => {
                         <td className="px-4 py-1 border border-gray-200 text-sm">
                           {doc.purposeOfLetter}
                         </td>
-                        <td className="px-4 py-1 border border-gray-200 text-sm">
+                        <td className="px-1 py-1 border border-gray-200 text-sm">
                           {doc.code}
                         </td>
                         <td className="px-4 py-1 border border-gray-200">
@@ -474,22 +559,33 @@ const Outgoing = () => {
                             year: "numeric",
                           })}
                         </td>
-                        <td className="px-4 py-1 border border-gray-200 text-sm">
-                          <button
-                            onClick={() => handleEdit(doc)}
-                            className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedDocId(doc._id);
-                              setIsOpen(true);
-                            }}
-                            className="bg-red-500 text-white px-2 py-1 rounded"
-                          >
-                            Delete
-                          </button>
+                        <td className="px-1 py-1 border border-gray-200 text-sm">
+                          {doc.fileName}
+                        </td>
+                        <td className="px-4 py-1 border-gray-200 text-sm text-center">
+                          <div className="flex justify-center items-center space-x-2">
+                            <button
+                              onClick={() => handleEdit(doc)}
+                              className="bg-blue-500 text-white px-2 py-1 rounded"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedDocId(doc._id);
+                                setIsOpen(true);
+                              }}
+                              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
+                            >
+                              Delete
+                            </button>
+                            <button
+                              onClick={() => handlePreview(doc.fileData)}
+                              className="bg-green-500 text-white px-2 py-1 rounded"
+                            >
+                              Preview
+                            </button>
+                          </div>
                         </td>
                       </>
                     )}
@@ -497,7 +593,26 @@ const Outgoing = () => {
                 ))}
               </tbody>
             </table>
-            
+            {pdfUrl && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ">
+                <div className="bg-white p-5 rounded-lg shadow-lg w-3/4 h-full relative pt-16">
+                  <button
+                    onClick={() => setPdfUrl(null)}
+                    className="absolute top-4 right-4 text-gray-700 hover:text-red-500"
+                  >
+                    <X size={30} />
+                  </button>
+
+                  <iframe
+                    src={pdfUrl}
+                    width="100%"
+                    height="100%"
+                    title="PDF Preview"
+                  ></iframe>
+                </div>
+              </div>
+            )}
+
             <div className="bg-gray-500 ">
               {setOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-50 z-50">

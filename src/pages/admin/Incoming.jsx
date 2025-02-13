@@ -141,7 +141,8 @@ const Incoming = () => {
 
   const saveEdit = async () => {
     try {
-      // Prepare form data for file upload (if new file is uploaded)
+      console.log("Starting document update...");
+  
       const formDataToSend = new FormData();
       formDataToSend.append("agency", editDoc.agency);
       formDataToSend.append("name", editDoc.name);
@@ -150,31 +151,41 @@ const Incoming = () => {
       formDataToSend.append("date", editDoc.date);
       formDataToSend.append("type", editDoc.type);
   
-      // Check if a new file has been selected
       if (newFile) {
         formDataToSend.append("document", newFile);
+        console.log("New file added:", newFile.name);
+      } else {
+        console.log("No new file uploaded.");
       }
   
-      // Send the PUT request to update the document
+      console.log("FormData to send:");
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`${key}:`, value);
+      }
+  
       const response = await axios.put(
         `http://localhost:5000/api/document/update-document/${editDoc._id}`,
         formDataToSend,
         {
           headers: {
-            "Content-Type": "multipart/form-data", // Send as multipart form data
+            "Content-Type": "multipart/form-data",
           },
         }
       );
   
-      // Update the local state with the updated document
+      console.log("Server response:", response.data);
+  
       setIncoming(
-        incoming.map((doc) => (doc._id === editDoc._id ? response.data.document : doc))
+        incoming.map((doc) =>
+          doc._id === editDoc._id ? response.data.document : doc
+        )
       );
       setFilteredDocs(
-        filteredDocs.map((doc) => (doc._id === editDoc._id ? response.data.document : doc))
+        filteredDocs.map((doc) =>
+          doc._id === editDoc._id ? response.data.document : doc
+        )
       );
   
-      // Clear the form and reset the edit state
       setEditDoc(null);
       setFormData({
         agency: "",
@@ -184,28 +195,31 @@ const Incoming = () => {
         date: "",
         type: "",
       });
-      setNewFile(null);  // Clear the uploaded file
+      setNewFile(null);
   
+      console.log("Document updated successfully!");
       setNotification({
         message: "Document updated successfully!",
         type: "success",
       });
     } catch (error) {
       console.error("Error updating document:", error);
+      if (error.response) {
+        console.error("Server Error Response:", error.response.data);
+      }
+  
       setNotification({
         message: "Error updating document.",
         type: "error",
       });
     }
   
-    // Clear notification after 3 seconds
     setTimeout(() => {
       setNotification(null);
     }, 3000);
   };
   
   const handleFileChange = (e) => {
-   
     setNewFile(e.target.files[0]);
   };
   

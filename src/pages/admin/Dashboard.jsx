@@ -30,6 +30,19 @@ const Dashboard = () => {
   const [total, setTotal] = useState([]);
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
+  const [overallChartData, setOverallChartData] = useState({
+    labels: ["Incoming", "Outgoing"],
+    datasets: [
+      {
+        label: "Total Documents",
+        data: [0, 0],
+        backgroundColor: ["blue", "red"],
+        borderColor: ["blue", "red"],
+        borderWidth: 1,
+      },
+    ],
+  });
+  
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [
@@ -56,76 +69,90 @@ const Dashboard = () => {
     try {
       const response = await axios.get(api);
       const allDocs = response.data;
-      const uniqueYears = [];
-      allDocs.forEach((doc) => {
-        const docDate = moment(doc.date);
-        const year = docDate.format("YYYY");
-        if (!uniqueYears.includes(year)) {
-          uniqueYears.push(year);
-        }
-      });
-
+      
+      // Extract unique years
+      const uniqueYears = [...new Set(allDocs.map((doc) => moment(doc.date).format("YYYY")))];
+      
       setYears(uniqueYears);
       setDocuments(allDocs);
-
+  
+      // Set current year by default
       const currentYear = moment().format("YYYY");
       setSelectedYear(currentYear);
+  
+      // Compute overall document totals (incoming vs outgoing)
+      const totalIncoming = allDocs.filter((doc) => doc.type === "incoming").length;
+      const totalOutgoing = allDocs.filter((doc) => doc.type === "outgoing").length;
+  
+      setOverallChartData({
+        labels: ["Incoming", "Outgoing"],
+        datasets: [
+          {
+            label: "Total Documents",
+            data: [totalIncoming, totalOutgoing],
+            backgroundColor: ["blue", "red"],
+            borderColor: ["blue", "red"],
+            borderWidth: 1,
+          },
+        ],
+      });
+  
     } catch (error) {
       console.error("Error fetching documents:", error);
     }
   };
-
+  
   const filterDocumentsByYear = () => {
+    if (!documents.length) return;
+  
     const filteredDocs = documents.filter(
       (doc) => moment(doc.date).format("YYYY") === selectedYear
     );
-
+  
     const incomingDocs = filteredDocs.filter((doc) => doc.type === "incoming");
     const outgoingDocs = filteredDocs.filter((doc) => doc.type === "outgoing");
-
+  
     setTotal(filteredDocs);
     setIncoming(incomingDocs);
     setOutgoing(outgoingDocs);
 
     const months = moment.monthsShort();
-    const incomingCounts = [];
-    const outgoingCounts = [];
-    months.forEach((month, index) => {
-      const monthDocs = filteredDocs.filter(
-        (doc) => moment(doc.date).month() === index
-      );
-      incomingCounts.push(
-        monthDocs.filter((doc) => doc.type === "incoming").length
-      );
-      outgoingCounts.push(
-        monthDocs.filter((doc) => doc.type === "outgoing").length
-      );
-    });
-
+    const incomingCounts = months.map((_, index) =>
+      filteredDocs.filter((doc) => moment(doc.date).month() === index && doc.type === "incoming").length
+    );
+    const outgoingCounts = months.map((_, index) =>
+      filteredDocs.filter((doc) => moment(doc.date).month() === index && doc.type === "outgoing").length
+    );
+  
     setChartData({
       labels: months,
       datasets: [
         {
-          ...chartData.datasets[0],
+          label: "Incoming",
           data: incomingCounts,
+          backgroundColor: "blue",
+          borderColor: "blue",
+          borderWidth: 1,
         },
         {
-          ...chartData.datasets[1],
+          label: "Outgoing",
           data: outgoingCounts,
+          backgroundColor: "red",
+          borderColor: "red",
+          borderWidth: 1,
         },
       ],
     });
   };
-
+  
   useEffect(() => {
     fetchDocument();
   }, []);
-
+  
   useEffect(() => {
-    if (selectedYear) {
-      filterDocumentsByYear();
-    }
-  }, [selectedYear]);
+    filterDocumentsByYear();
+  }, [documents, selectedYear]);
+  
 
   return (
     <DasboardLayout>
@@ -134,7 +161,7 @@ const Dashboard = () => {
         style={{ backgroundImage: `url(${AdminBG})` }}
       >
         <div className="absolute inset-0 bg-blue-950 opacity-85"></div>
-        <h1 className="relative text-4xl font-bold text-white flex self-start px-30 pt-5">
+        <h1 className="relative text-4xl font-bold text-white flex self-start px-14 pt-5">
           Document Dashboard
         </h1>
 
@@ -167,7 +194,7 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
-        <div className="flex left-14 top-6 justify-center space-x-4 relative bg-white  self-start">
+        <div className="flex left-30 top-6 justify-center space-x-2 relative bg-white  self-start rounded-md px-1">
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
@@ -181,34 +208,68 @@ const Dashboard = () => {
             ))}
           </select>
         </div>
+        <div className="flex flex-row justify-between gap-4 p-4">
+  <div className="mt-8 w-[500px] bg-white p-4 shadow-lg rounded-lg h-[300px] relative">
+    <h2 className="text-center text-lg font-bold mb-4">Monthly Document Summary</h2>
+    <Bar
+      data={chartData}
+      options={{
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Months",
+            },
+            grid: {
+              display: false,
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Document Count",
+            },
+            beginAtZero: true,
+          },
+        },
+      }}
+      className="w-full h-full"
+    />
+  </div>
 
-        <div className="mt-8 w-1/2 left-14 relative bg-white flex self-start h-1/3">
-          <Bar
-            data={chartData}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                x: {
-                  title: {
-                    display: true,
-                    text: "Months",
-                  },
-                  grid: {
-                    display: false,
-                  },
-                },
-                y: {
-                  title: {
-                    display: true,
-                    text: "Document Count",
-                  },
-                  beginAtZero: true,
-                },
-              },
-            }}
-          />
-        </div>
+  <div className="mt-8 w-1/2 bg-white pb-6 pt-4 px-4 shadow-lg rounded-lg h-[300px] relative">
+    <h2 className="text-center text-lg font-bold mb-4">Overall Document Summary</h2>
+    <Bar
+      data={overallChartData}
+      options={{
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Document Type",
+            },
+            grid: {
+              display: false,
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Total Count",
+            },
+            beginAtZero: true,
+          },
+        },
+      }}
+      className="w-full h-full"
+    />
+  </div>
+</div>
+
       </div>
     </DasboardLayout>
   );
