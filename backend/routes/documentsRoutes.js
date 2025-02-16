@@ -1,10 +1,11 @@
 const express = require("express");
-const router = express.Router();
-const { addDocument, getDocument, deleteDocument, updateDocument } = require("../controllers/documentsControllers");
+const { addDocument, getDocument, deleteDocument, updateDocument, upload } = require("../controllers/documentsControllers");
 
-router.post("/add-document", addDocument);
+const router = express.Router();
+
+router.post("/add-document", upload.single("document"), addDocument);
 router.get("/get-document", getDocument);
 router.delete("/delete-document/:id", deleteDocument);
-router.put("/update-document/:id", updateDocument);
+router.put("/update-document/:id", upload.single("document"), updateDocument);
 
 module.exports = router;
