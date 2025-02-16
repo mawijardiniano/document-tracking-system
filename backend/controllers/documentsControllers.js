@@ -1,68 +1,76 @@
 const Document = require("../models/documentModels");
 const multer = require("multer");
+const { uploadFile } = require("./googleDrive");
+
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage }).single("document");
+const upload = multer({ storage: storage });
 
-
+/**
+ * Add a new document
+ */
 const addDocument = async (req, res) => {
   try {
-    upload(req, res, async (err) => {
-      if (err) {
-        return res.status(400).json({ message: "Error uploading file" });
+    const { agency, purposeOfLetter, date, name, code, type } = req.body;
+
+    if (!agency || !purposeOfLetter || !date || !code || !type) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    let fileUrl = null;
+    let fileName = null;
+
+    if (req.file) {
+      fileName = req.file.originalname;
+
+      // Upload file buffer to Google Drive
+      const uploadResult = await uploadFile(req.file.buffer, fileName);
+      if (!uploadResult) {
+        return res.status(500).json({ message: "File upload to Google Drive failed!" });
       }
 
-      const { agency, purposeOfLetter, date, name, code, type } = req.body;
+      fileUrl = uploadResult.fileUrl;
+    }
 
-      if (!agency || !purposeOfLetter || !date || !code || !type) {
-        return res.status(400).json({ message: "All fields are required." });
-      }
+    // Save document with the Google Drive file URL
+    const document = new Document({
+      agency,
+      purposeOfLetter,
+      date,
+      name,
+      code,
+      type,
+      fileName,
+      fileData: fileUrl, // Save Google Drive URL
+    });
 
-      let fileData = null;
-      let fileName = null;
+    await document.save();
 
-      if (req.file) {
-        fileName = req.file.originalname;
-        fileData = req.file.buffer.toString("base64"); 
-      }
-
-      const document = new Document({
-        agency,
-        purposeOfLetter,
-        date,
-        name,
-        code,
-        type,
-        fileName, 
-        fileData,  
-      });
-
-      await document.save();
-
-      return res.status(201).json({
-        message: "Document added successfully",
-        document,
-      });
+    return res.status(201).json({
+      message: "Document added successfully",
+      document,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.error("Add Document Error:", error);
+    return res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
-
-
-// ✅ Get all documents
+/**
+ * Get all documents
+ */
 const getDocument = async (req, res) => {
   try {
-    const document = await Document.find();
-    res.json(document);
+    const documents = await Document.find();
+    res.json(documents);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.error("Get Documents Error:", error);
+    return res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
-// ✅ Delete a document by ID
+/**
+ * Delete document
+ */
 const deleteDocument = async (req, res) => {
   try {
     const { id } = req.params;
@@ -79,24 +87,15 @@ const deleteDocument = async (req, res) => {
     res.json({ message: "Document deleted successfully", deletedDocument });
   } catch (error) {
     console.error("Delete Document Error:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
-
+/**
+ * Update document
+ */
 const updateDocument = async (req, res) => {
   try {
-    // Use a Promise wrapper for `upload()` to properly handle async/await
-    await new Promise((resolve, reject) => {
-      upload(req, res, (err) => {
-        if (err) {
-          reject(res.status(400).json({ message: "Error uploading file" }));
-        } else {
-          resolve();
-        }
-      });
-    });
-
     const { agency, purposeOfLetter, date, name, code, type } = req.body;
 
     if (!agency || !purposeOfLetter || !date || !code || !type) {
@@ -108,7 +107,6 @@ const updateDocument = async (req, res) => {
       return res.status(404).json({ message: "Document not found" });
     }
 
-    // Update document fields
     document.agency = agency;
     document.purposeOfLetter = purposeOfLetter;
     document.date = date;
@@ -116,15 +114,15 @@ const updateDocument = async (req, res) => {
     document.code = code;
     document.type = type;
 
-
     if (req.file) {
-      document.fileName = req.file.originalname || document.fileName; 
-      document.fileData = req.file.buffer.toString("base64");
-    }
+      document.fileName = req.file.originalname || document.fileName;
 
-
-    if (!document.fileName) {
-      return res.status(400).json({ message: "File name is required." });
+      // Upload the new file to Google Drive
+      const uploadResult = await uploadFile(req.file.buffer, document.fileName);
+      if (!uploadResult) {
+        return res.status(500).json({ message: "File upload failed!" });
+      }
+      document.fileData = uploadResult.fileUrl;
     }
 
     await document.save();
@@ -135,9 +133,8 @@ const updateDocument = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating document:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
-
-module.exports = { addDocument, getDocument, deleteDocument, updateDocument };
+module.exports = { addDocument, getDocument, deleteDocument, updateDocument, upload };

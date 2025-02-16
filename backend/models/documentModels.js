@@ -33,6 +33,7 @@ const documentSchema = new mongoose.Schema({
     type: String, // Store file data as Base64 or URL
     required: false,
   },
+
 });
 
 module.exports = mongoose.model("Document", documentSchema);

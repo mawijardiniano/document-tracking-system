@@ -170,53 +170,66 @@ const AddDocuments = () => {
   };
 
   const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    setFile(selectedFile);
-  };
+  const selectedFile = event.target.files[0];
+  console.log("Selected file:", selectedFile);
+  setFile(selectedFile);
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formDataToSend = new FormData();
-    formDataToSend.append("agency", formData.agency);
-    formDataToSend.append("name", formData.name);
-    formDataToSend.append("code", formData.code);
-    formDataToSend.append("purposeOfLetter", formData.purposeOfLetter);
-    formDataToSend.append("date", formData.date);
-    formDataToSend.append("type", formData.type);
-    formDataToSend.append("document", file);
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      await axios.post(add, formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+  console.log("Submitting form...");
+  console.log("Form Data:", formData);
 
-      setFormData({
-        agency: "",
-        name: "",
-        code: "",
-        purposeOfLetter: "",
-        date: "",
-        type: "",
-      });
-      setFile(null);
+  const formDataToSend = new FormData();
+  formDataToSend.append("agency", formData.agency);
+  formDataToSend.append("name", formData.name);
+  formDataToSend.append("code", formData.code);
+  formDataToSend.append("purposeOfLetter", formData.purposeOfLetter);
+  formDataToSend.append("date", formData.date);
+  formDataToSend.append("type", formData.type);
+  formDataToSend.append("document", file);
+
+  console.log("FormData before sending:", Object.fromEntries(formDataToSend.entries()));
+
+  try {
+    const response = await axios.post(add, formDataToSend, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    console.log("Response from server:", response.data);
+
+    setFormData({
+      agency: "",
+      name: "",
+      code: "",
+      purposeOfLetter: "",
+      date: "",
+      type: "",
+    });
+    setFile(null);
+    if (fileInputRef.current) {
       fileInputRef.current.value = null;
-      setNotification({
-        message: "Document uploaded successfully!",
-        type: "success",
-      });
-
-      fetchDocument();
-    } catch (error) {
-      console.error("Error adding document:", error);
-      setNotification({ message: "Error uploading document.", type: "error" });
     }
 
-    setTimeout(() => {
-      setNotification(null);
-    }, 3000);
-  };
+    setNotification({
+      message: "Document uploaded successfully!",
+      type: "success",
+    });
+
+    fetchDocument();
+  } catch (error) {
+    console.error("Error adding document:", error.response ? error.response.data : error.message);
+    setNotification({ message: "Error uploading document.", type: "error" });
+  }
+
+  setTimeout(() => {
+    setNotification(null);
+  }, 3000);
+};
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
