@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { HomeIcon, FilePlus, FileInput, FileOutput, Settings, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
+import { HomeIcon, FilePlus, File, FileInput, FileOutput, Settings, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
 
 const Sidebar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -34,6 +34,11 @@ const Sidebar = () => {
           <li>
             <NavLink to="/admin/outgoing" className={({ isActive }) => `${baseClasses} ${isActive ? activeClasses : ""}`}>
               <FileOutput size={20} /> Outgoing Documents
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/admin/regional" className={({ isActive }) => `${baseClasses} ${isActive ? activeClasses : ""}`}>
+              <File size={20} /> Regional Documents
             </NavLink>
           </li>
           <li>

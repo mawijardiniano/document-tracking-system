@@ -9,6 +9,7 @@ import AddReceiver from "./pages/admin/settings/addReceiver"
 import { useAuth } from "./context/AuthContext";
 import PropTypes from "prop-types";
 import AddDocuments from "./pages/admin/addDocuments";
+import Regional from "./pages/admin/regional";
 
 const ProtectedRoute = ({ children }) => {
   const { isAdmin } = useAuth();
@@ -23,13 +24,14 @@ function App() {
   return (
     <div>
       <Routes>
+      <Route path="/" element={<Admin />} />
         <Route path="/admin/incoming" element={<Incoming />} />
         <Route path="/admin/outgoing" element={<Outgoing />} />
+        <Route path="/admin/regional" element={<Regional />} />
         <Route path="/admin/settings" element={<Settings />} />
         <Route path="/admin/settings/add-agency" element={<AddAgency />} />
         <Route path="/admin/settings/add-receiver" element={<AddReceiver />} />
         <Route path="/admin/add" element={<AddDocuments />} />
-        <Route path="/" element={<Admin />} />
         <Route path="/admin/dashboard" element={<AdminDashBoard />} />
       </Routes>
     </div>
