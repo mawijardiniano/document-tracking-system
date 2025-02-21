@@ -33,6 +33,7 @@ const Dashboard = () => {
   const [total, setTotal] = useState([]);
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
+  const [topAgencies, setTopAgencies] = useState([])
   const [overallChartData, setOverallChartData] = useState({
     labels: ["Incoming", "Outgoing"],
     datasets: [
@@ -68,7 +69,6 @@ const Dashboard = () => {
       const response = await axios.get(api);
       const allDocs = response.data;
 
-      // Extract unique years
       const uniqueYears = [
         ...new Set(allDocs.map((doc) => moment(doc.date).format("YYYY"))),
       ];
@@ -76,9 +76,17 @@ const Dashboard = () => {
       setYears(uniqueYears);
       setDocuments(allDocs);
 
-      // Set current year by default
       const currentYear = moment().format("YYYY");
       setSelectedYear(currentYear);
+
+      const agencyCounts = allDocs.reduce((acc, doc) => {
+        acc[doc.agency] = (acc[doc.agency] || 0) + 1;
+        return acc;
+      }, {});
+      const sortedAgencies = Object.entries(agencyCounts)
+      .sort((a, b) => b[1] - a[1]) 
+      .slice(0, 3); 
+    setTopAgencies(sortedAgencies);
 
       const totalIncoming = allDocs.filter(
         (doc) => doc.type === "incoming"
@@ -173,10 +181,9 @@ const Dashboard = () => {
         </h1>
 
         <div className="flex flex-row space-x-4 p-4">
-          {/* Left Section: 3 Containers + BarChart */}
+
           <div className="flex flex-col w-2/3 space-y-4">
             <div className="flex flex-row space-x-2 w-full">
-              {/* Container 1 */}
               <div className="bg-blue-400 relative w-1/3 h-40 rounded-md">
                 <p className="p-4 font-medium text-lg text-white flex flex-row items-center justify-between">
                   Incoming Documents
@@ -187,7 +194,6 @@ const Dashboard = () => {
                 </p>
               </div>
 
-              {/* Container 2 */}
               <div className="bg-blue-500 relative w-1/3 h-40 rounded-md">
                 <p className="p-4 font-medium text-lg text-white flex flex-row items-center justify-between">
                   Outgoing Documents
@@ -198,7 +204,6 @@ const Dashboard = () => {
                 </p>
               </div>
 
-              {/* Container 3 */}
               <div className="bg-blue-600 relative w-1/3 h-40 rounded-md">
                 <p className="p-4 font-medium text-lg text-white flex flex-row items-center justify-between">
                   Total Documents
@@ -227,10 +232,20 @@ const Dashboard = () => {
               <OverallChart overallChartData={overallChartData} />
             </div>
 
-            <div className=" w-[490px] bg-white pb-6 pt-4 px-4 shadow-lg rounded-lg h-[260px] relative">
+            <div className=" w-[490px] bg-white pb-6 pt-4 px-4 shadow-lg rounded-lg h-[290px] relative">
               <h2 className="text-2xl font-bold">Top Agency</h2>
 
-              <p>Agency details here...</p>
+              {topAgencies?.length > 0 ? (
+  topAgencies.map(([agency, count], index) => (
+    <div key={index} className="bg-gray-100 p-2 my-2 rounded-md">
+      <h3 className="font-bold text-lg">{agency}</h3>
+      <p>Total Documents: {count}</p>
+    </div>
+  ))
+) : (
+  <p>No agency data available</p>
+)}
+
             </div>
           </div>
         </div>
