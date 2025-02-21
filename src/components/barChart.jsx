@@ -21,8 +21,8 @@ const BarChart = ({ chartData,  years, selectedYear, setSelectedYear  }) => {
       const chart = chartRef.current;
       const ctx = chart.ctx;
       const gradientFill = ctx.createLinearGradient(0, 0, 0, 300);
-      gradientFill.addColorStop(0, "#0071BC"); // DOST Blue (Top)
-      gradientFill.addColorStop(1, "rgba(0, 113, 188, 0.1)"); // Transparent (Bottom)
+      gradientFill.addColorStop(0, "#0071BC"); 
+      gradientFill.addColorStop(1, "rgba(0, 113, 188, 0.1)"); 
       setGradient(gradientFill);
     }
   }, []);
@@ -55,10 +55,10 @@ const BarChart = ({ chartData,  years, selectedYear, setSelectedYear  }) => {
             ...dataset,
             backgroundColor:
               dataset.label === "Outgoing"
-                ? "#0071BC" // DOST Blue
+                ? "#0071BC"
                 : dataset.label === "Incoming"
-                ? "#4F4F4F" // DOST Black
-                : gradient || "#A0A0A0", // DOST Gray for Others
+                ? "#4F4F4F"
+                : gradient || "#A0A0A0",
             borderColor: "rgba(0, 0, 0, 0.2)",
             borderWidth: 2,
             borderRadius: 6,
