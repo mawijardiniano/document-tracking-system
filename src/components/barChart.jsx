@@ -28,7 +28,7 @@ const BarChart = ({ chartData,  years, selectedYear, setSelectedYear  }) => {
   }, []);
 
   return (
-    <div className=" w-[720px] bg-white p-5 shadow-md border border-gray-300 rounded-lg h-[350px] relative">
+    <div className=" w-[720px] bg-white p-5 shadow-md border border-gray-300 rounded-lg h-[380px] relative">
     <div className="flex flex-row justify-between">
     <h2 className="text-center text-lg font-bold mb-4 text-gray-900">
         Monthly Document Summary
