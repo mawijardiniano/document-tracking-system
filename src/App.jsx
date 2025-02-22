@@ -5,15 +5,16 @@ import Admin from "./pages/admin/Admin";
 import AdminDashBoard from "./pages/admin/Dashboard";
 import Settings from "./pages/admin/settings/Settings";
 import AddAgency from "./pages/admin/settings/addAgency";
-import AddReceiver from "./pages/admin/settings/addReceiver"
-import { useAuth } from "./context/AuthContext";
-import PropTypes from "prop-types";
+import AddReceiver from "./pages/admin/settings/addReceiver";
 import AddDocuments from "./pages/admin/addDocuments";
 import Regional from "./pages/admin/regional";
+import { useAuth } from "./context/AuthContext";
+import PropTypes from "prop-types";
 
 const ProtectedRoute = ({ children }) => {
   const { isAdmin } = useAuth();
-  return isAdmin ? children : <Navigate to="/" />;
+
+  return isAdmin ? children : <Navigate to="/" replace />;
 };
 
 ProtectedRoute.propTypes = {
@@ -24,15 +25,74 @@ function App() {
   return (
     <div>
       <Routes>
-      <Route path="/" element={<Admin />} />
-        <Route path="/admin/incoming" element={<Incoming />} />
-        <Route path="/admin/outgoing" element={<Outgoing />} />
-        <Route path="/admin/regional" element={<Regional />} />
-        <Route path="/admin/settings" element={<Settings />} />
-        <Route path="/admin/settings/add-agency" element={<AddAgency />} />
-        <Route path="/admin/settings/add-receiver" element={<AddReceiver />} />
-        <Route path="/admin/add" element={<AddDocuments />} />
-        <Route path="/admin/dashboard" element={<AdminDashBoard />} />
+
+        <Route path="/" element={<Admin />} />
+        <Route path="/login" element={<h1>Login Page</h1>} /> 
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashBoard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/incoming"
+          element={
+            <ProtectedRoute>
+              <Incoming />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/outgoing"
+          element={
+            <ProtectedRoute>
+              <Outgoing />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/regional"
+          element={
+            <ProtectedRoute>
+              <Regional />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/settings/add-agency"
+          element={
+            <ProtectedRoute>
+              <AddAgency />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/settings/add-receiver"
+          element={
+            <ProtectedRoute>
+              <AddReceiver />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/add"
+          element={
+            <ProtectedRoute>
+              <AddDocuments />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );
