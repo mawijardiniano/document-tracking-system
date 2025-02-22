@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 import { HomeIcon, FilePlus, File, FileInput, FileOutput, Settings, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
 
 const Sidebar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    navigate("/");
+  };
+
   
   const toggleSettings = () => {
     setIsSettingsOpen(!isSettingsOpen);
@@ -64,7 +74,7 @@ const Sidebar = () => {
             )}
           </li>
           <li>
-            <button className="flex items-center gap-2 w-full text-left p-2 rounded-md transition-colors duration-200 hover:bg-gray-200 hover:text-gray-700">
+            <button    onClick={handleLogout} className="flex items-center gap-2 w-full text-left p-2 rounded-md transition-colors duration-200 hover:bg-gray-200 hover:text-gray-700">
               <LogOut size={20} /> Logout
             </button>
           </li>
