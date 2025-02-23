@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
 import AdminBG from "../../assets/bg4.jpg";
 import "../../App.css"
@@ -9,10 +10,12 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth(); // ✅ Use AuthContext
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+
     try {
       const response = await axios.post(
         "http://localhost:5000/api/admin/login",
@@ -21,8 +24,10 @@ const AdminLogin = () => {
           password,
         }
       );
-      localStorage.setItem("adminToken", response.data.token);
-      navigate("/admin/dashboard");
+      
+      const token = response.data.token;
+      login(token); 
+      navigate("/admin/dashboard"); 
     } catch (err) {
       setError("Invalid email or password");
     }
