@@ -56,7 +56,7 @@ const AddDocuments = () => {
     try {
       const response = await axios.get(FETCHAPI);
       setReceivers(response.data);
-      setFilteredReceivers(response.data); // Set filtered receivers for searching
+      setFilteredReceivers(response.data);
     } catch (error) {
       console.error("Error fetching receivers:", error);
     }
