@@ -35,9 +35,9 @@ const AddDocuments = () => {
   const [agencies, setAgencies] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isAgencyDropdownVisible, setIsAgencyDropdownVisible] = useState(false);
-  const inputRef = useRef(null); // Ref for the input field
-  const dropdownRef = useRef(null); // Ref for the dropdown container
-  const agencyDropdownRef = useRef(null); // Ref for the agency dropdown container
+  const inputRef = useRef(null); 
+  const dropdownRef = useRef(null);
+  const agencyDropdownRef = useRef(null); 
 
   const getAgency = async () => {
     try {
