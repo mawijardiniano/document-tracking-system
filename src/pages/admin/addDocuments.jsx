@@ -108,10 +108,8 @@ const AddDocuments = () => {
       const res = await axios.get(api);
       const allDocs = res.data;
 
-      // Get the current year (last two digits)
       const currentYear = new Date().getFullYear().toString().slice(-2);
 
-      // Set prefix based on type selection
       let prefix;
       if (formData.type === "incoming") {
         prefix = "INC";
@@ -119,12 +117,11 @@ const AddDocuments = () => {
         prefix = "OUT";
       } else {
         console.error("Invalid document type:", formData.type);
-        return; // Exit if type is not valid
+        return;
       }
 
       console.log("Selected prefix:", prefix);
 
-      // Filter documents by the current year and the selected prefix (type)
       const filteredDocs = allDocs
         .filter(
           (doc) =>
@@ -139,15 +136,13 @@ const AddDocuments = () => {
       let newCode;
       if (filteredDocs.length > 0) {
         const lastCode = filteredDocs[0].code;
-        const lastNumber = parseInt(lastCode.split("-")[2], 10); // Get the number after the year
+        const lastNumber = parseInt(lastCode.split("-")[2], 10);
 
-        // Generate the new code based on the last one
         newCode = `${prefix}-${currentYear}-${String(lastNumber + 1).padStart(
           3,
           "0"
         )}`;
       } else {
-        // If no documents are found for the current year, start from 001
         newCode = `${prefix}-${currentYear}-001`;
       }
 
