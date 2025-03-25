@@ -139,15 +139,13 @@ const AddDocuments = () => {
       let newCode;
       if (filteredDocs.length > 0) {
         const lastCode = filteredDocs[0].code;
-        const lastNumber = parseInt(lastCode.split("-")[2], 10); // Get the number after the year
+        const lastNumber = parseInt(lastCode.split("-")[2], 10);
 
-        // Generate the new code based on the last one
         newCode = `${prefix}-${currentYear}-${String(lastNumber + 1).padStart(
           3,
           "0"
         )}`;
       } else {
-        // If no documents are found for the current year, start from 001
         newCode = `${prefix}-${currentYear}-001`;
       }
 
