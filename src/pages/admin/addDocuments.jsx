@@ -35,9 +35,9 @@ const AddDocuments = () => {
   const [agencies, setAgencies] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isAgencyDropdownVisible, setIsAgencyDropdownVisible] = useState(false);
-  const inputRef = useRef(null); // Ref for the input field
-  const dropdownRef = useRef(null); // Ref for the dropdown container
-  const agencyDropdownRef = useRef(null); // Ref for the agency dropdown container
+  const inputRef = useRef(null); 
+  const dropdownRef = useRef(null);
+  const agencyDropdownRef = useRef(null); 
 
   const getAgency = async () => {
     try {
@@ -56,7 +56,7 @@ const AddDocuments = () => {
     try {
       const response = await axios.get(FETCHAPI);
       setReceivers(response.data);
-      setFilteredReceivers(response.data); // Set filtered receivers for searching
+      setFilteredReceivers(response.data);
     } catch (error) {
       console.error("Error fetching receivers:", error);
     }
@@ -108,10 +108,8 @@ const AddDocuments = () => {
       const res = await axios.get(api);
       const allDocs = res.data;
 
-      // Get the current year (last two digits)
       const currentYear = new Date().getFullYear().toString().slice(-2);
 
-      // Set prefix based on type selection
       let prefix;
       if (formData.type === "incoming") {
         prefix = "INC";
@@ -119,12 +117,11 @@ const AddDocuments = () => {
         prefix = "OUT";
       } else {
         console.error("Invalid document type:", formData.type);
-        return; // Exit if type is not valid
+        return;
       }
 
       console.log("Selected prefix:", prefix);
 
-      // Filter documents by the current year and the selected prefix (type)
       const filteredDocs = allDocs
         .filter(
           (doc) =>
