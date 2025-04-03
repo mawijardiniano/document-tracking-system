@@ -10,7 +10,7 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ Use AuthContext
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
