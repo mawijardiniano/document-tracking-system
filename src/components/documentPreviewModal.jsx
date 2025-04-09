@@ -5,8 +5,6 @@ const DocumentPreviewModal = ({ previewFile, setPreviewFile }) => {
   if (!previewFile) {
     return null; // Early return if previewFile is null or undefined
   }
-
-  // Ensure base64 data is in correct format
   const formattedFile = previewFile.startsWith("data:") ? previewFile : `data:application/pdf;base64,${previewFile}`;
 
   return (
