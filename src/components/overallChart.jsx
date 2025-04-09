@@ -2,7 +2,6 @@ import React from "react";
 import { Bar } from "react-chartjs-2";
 
 const OverallChart = ({ overallChartData }) => {
-  // Ensure overallChartData is being used correctly
   const modifiedData = {
     ...overallChartData,
     datasets: overallChartData.datasets.map((dataset) => ({
