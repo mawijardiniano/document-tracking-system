@@ -1,6 +1,5 @@
 const Agency = require("../models/agencyModel");
 
-// ✅ Add a new agency
 const addAgency = async (req, res) => {
   try {
     const { agencyName } = req.body;
@@ -19,7 +18,6 @@ const addAgency = async (req, res) => {
   }
 };
 
-// ✅ Get all agencies
 const getAgency = async (req, res) => {
   try {
     const agencies = await Agency.find();
@@ -30,7 +28,6 @@ const getAgency = async (req, res) => {
   }
 };
 
-// ✅ Delete an agency by ID
 const deleteAgency = async (req, res) => {
   try {
     const { id } = req.params;
