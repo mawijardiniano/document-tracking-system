@@ -3,7 +3,6 @@ import { Document, Page } from 'react-pdf';
 import { convertBase64ToBlob } from "../utils/fileupload";
 import { pdfjs } from 'react-pdf';
 
-// Use the Cloudflare CDN for the PDF.js worker script
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
 
 const PdfPreview = ({ base64Data }) => {
@@ -21,7 +20,7 @@ const PdfPreview = ({ base64Data }) => {
 
       return () => {
         if (url) {
-          URL.revokeObjectURL(url); // Cleanup the URL
+          URL.revokeObjectURL(url);
         }
       };
     } catch (error) {
@@ -30,7 +29,7 @@ const PdfPreview = ({ base64Data }) => {
   }, [base64Data]);
 
   if (!url) {
-    return <div>Loading...</div>; // Show loading text if URL is not yet created
+    return <div>Loading...</div>;
   }
 
   return (
