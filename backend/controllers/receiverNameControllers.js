@@ -67,7 +67,6 @@ const editReceiver = async (req, res) => {
   }
 };
 
-// Delete a receiver by ID
 const deleteReceiver = async (req, res) => {
   try {
     const { id } = req.params;
