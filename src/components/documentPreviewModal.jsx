@@ -5,8 +5,6 @@ const DocumentPreviewModal = ({ previewFile, setPreviewFile }) => {
   if (!previewFile) {
     return null;
   }
-
-
   const formattedFile = previewFile.startsWith("data:") ? previewFile : `data:application/pdf;base64,${previewFile}`;
 
   return (
