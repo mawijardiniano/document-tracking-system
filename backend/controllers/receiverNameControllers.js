@@ -14,7 +14,7 @@ const addReceiver = async (req, res) => {
       position
     });
 
-    await receiverName.save(); // Save the receiver
+    await receiverName.save();
 
     return res.status(201).json({
       message: "Receiver added successfully",
@@ -26,7 +26,6 @@ const addReceiver = async (req, res) => {
   }
 };
 
-// Get all receivers
 const getReceivers = async (req, res) => {
   try {
     const receivers = await Receiver.find();
@@ -37,7 +36,6 @@ const getReceivers = async (req, res) => {
   }
 };
 
-// Edit a receiver by ID
 const editReceiver = async (req, res) => {
   try {
     const { id } = req.params;
