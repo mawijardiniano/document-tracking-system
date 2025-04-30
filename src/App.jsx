@@ -7,7 +7,6 @@ import Settings from "./pages/admin/settings/Settings";
 import AddAgency from "./pages/admin/settings/addAgency";
 import AddReceiver from "./pages/admin/settings/addReceiver";
 import AddDocuments from "./pages/admin/addDocuments";
-import Regional from "./pages/admin/regional";
 import { useAuth } from "./context/AuthContext";
 import PropTypes from "prop-types";
 
@@ -50,14 +49,6 @@ function App() {
           element={
             <ProtectedRoute>
               <Outgoing />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/regional"
-          element={
-            <ProtectedRoute>
-              <Regional />
             </ProtectedRoute>
           }
         />

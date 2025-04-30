@@ -47,11 +47,6 @@ const Sidebar = () => {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/admin/regional" className={({ isActive }) => `${baseClasses} ${isActive ? activeClasses : ""}`}>
-              <File size={20} /> Regional Documents
-            </NavLink>
-          </li>
-          <li>
             <button onClick={toggleSettings} className={`${baseClasses} w-full flex justify-between`}>
               <span className="flex items-center gap-2">
                 <Settings size={20} /> Settings
