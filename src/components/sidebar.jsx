@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { HomeIcon, FilePlus, File, FileInput, FileOutput, Settings, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
 

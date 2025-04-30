@@ -129,7 +129,7 @@ const AddDocuments = () => {
             doc.code &&
             doc.code.startsWith(`${prefix}-${currentYear}-`)
         )
-        .sort((a, b) => b.code.localeCompare(a.code)); // Sort to get the last code
+        .sort((a, b) => b.code.localeCompare(a.code));
 
       console.log("Filtered docs for", formData.type, ":", filteredDocs);
 
