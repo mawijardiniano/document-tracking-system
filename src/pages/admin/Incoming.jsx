@@ -42,21 +42,18 @@ const Incoming = () => {
   const itemsPerPage = 15;
 
   const handlePreview = (fileData) => {
-  if (!fileData) {
-    console.error("File ID is missing");
-    return;
-  }
+    if (!fileData) {
+      console.error("File ID is missing");
+      return;
+    }
 
+    const match = fileData.match(/[-\w]{25,}/);
+    const fileId = match ? match[0] : fileData;
 
-  const match = fileData.match(/[-\w]{25,}/);
-  const fileId = match ? match[0] : fileData;
+    const driveUrl = `https://drive.google.com/file/d/${fileId}/view`;
 
-
-  const driveUrl = `https://drive.google.com/file/d/${fileId}/view`;
-
-  window.open(driveUrl, '_blank');
-};
-
+    window.open(driveUrl, "_blank");
+  };
 
   const fetchDocument = async () => {
     try {
@@ -86,7 +83,7 @@ const Incoming = () => {
       const agencyMatch = doc.agency
         .toLowerCase()
         .includes(filterText.toLowerCase());
-        
+
       return yearMatch && monthMatch && agencyMatch;
     });
     setFilteredDocs(filtered);
@@ -150,7 +147,7 @@ const Incoming = () => {
   const saveEdit = async () => {
     try {
       console.log("Starting document update...");
-  
+
       const formDataToSend = new FormData();
       formDataToSend.append("agency", editDoc.agency);
       formDataToSend.append("name", editDoc.name);
@@ -158,19 +155,19 @@ const Incoming = () => {
       formDataToSend.append("purposeOfLetter", editDoc.purposeOfLetter);
       formDataToSend.append("date", editDoc.date);
       formDataToSend.append("type", editDoc.type);
-  
+
       if (newFile) {
         formDataToSend.append("document", newFile);
         console.log("New file added:", newFile.name);
       } else {
         console.log("No new file uploaded.");
       }
-  
+
       console.log("FormData to send:");
       for (let [key, value] of formDataToSend.entries()) {
         console.log(`${key}:`, value);
       }
-  
+
       const response = await axios.put(
         `http://localhost:5000/api/document/update-document/${editDoc._id}`,
         formDataToSend,
@@ -180,9 +177,9 @@ const Incoming = () => {
           },
         }
       );
-  
+
       console.log("Server response:", response.data);
-  
+
       setIncoming(
         incoming.map((doc) =>
           doc._id === editDoc._id ? response.data.document : doc
@@ -193,7 +190,7 @@ const Incoming = () => {
           doc._id === editDoc._id ? response.data.document : doc
         )
       );
-  
+
       setEditDoc(null);
       setFormData({
         agency: "",
@@ -204,7 +201,7 @@ const Incoming = () => {
         type: "",
       });
       setNewFile(null);
-  
+
       console.log("Document updated successfully!");
       setNotification({
         message: "Document updated successfully!",
@@ -215,22 +212,21 @@ const Incoming = () => {
       if (error.response) {
         console.error("Server Error Response:", error.response.data);
       }
-  
+
       setNotification({
         message: "Error updating document.",
         type: "error",
       });
     }
-  
+
     setTimeout(() => {
       setNotification(null);
     }, 3000);
   };
-  
+
   const handleFileChange = (e) => {
     setNewFile(e.target.files[0]);
   };
-  
 
   const handleEdit = (doc) => {
     setEditDoc(doc);
@@ -484,8 +480,7 @@ const Incoming = () => {
                             className="border p-1 w-40"
                           />
                         </td>
-                        <td
-                          className="px-4 py-1 border border-gray-200 text-sm">
+                        <td className="px-4 py-1 border border-gray-200 text-sm">
                           <input
                             type="text"
                             value={editDoc.purposeOfLetter}
@@ -498,9 +493,7 @@ const Incoming = () => {
                             className="border p-1 w-40"
                           />
                         </td>
-                        <td
-                          className="px-1 py-1 border border-gray-200 text-sm"
-                        >
+                        <td className="px-1 py-1 border border-gray-200 text-sm">
                           <input
                             type="text"
                             value={editDoc.code}
@@ -524,12 +517,12 @@ const Incoming = () => {
                           />
                         </td>
                         <td className="px-1 py-1 border border-gray-200 text-sm">
-  <input
-    type="file"
-    onChange={(e) => handleFileChange(e)}
-    className="border p-1 w-36"
-  />
-</td>
+                          <input
+                            type="file"
+                            onChange={(e) => handleFileChange(e)}
+                            className="border p-1 w-36"
+                          />
+                        </td>
 
                         <td className="px-4 py-1 border border-gray-200 text-sm">
                           <button
@@ -602,24 +595,22 @@ const Incoming = () => {
               </tbody>
             </table>
             {pdfUrl && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-3/4 h-screen relative pt-16">
-
-            <button
-              onClick={() => setPdfUrl(null)}
-              className="absolute top-4 right-4 text-gray-700 hover:text-red-500"
-            >
-              <X size={30} />
-            </button>
-            <iframe
-              src={pdfUrl}
-              className="w-full h-full"
-              title="PDF Preview"
-            
-            ></iframe>
-          </div>
-        </div>
-      )}
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white p-5 rounded-lg shadow-lg w-3/4 h-screen relative pt-16">
+                  <button
+                    onClick={() => setPdfUrl(null)}
+                    className="absolute top-4 right-4 text-gray-700 hover:text-red-500"
+                  >
+                    <X size={30} />
+                  </button>
+                  <iframe
+                    src={pdfUrl}
+                    className="w-full h-full"
+                    title="PDF Preview"
+                  ></iframe>
+                </div>
+              </div>
+            )}
             <div className="bg-gray-500 ">
               {setOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-950/70 backdrop-blur-50 z-50">

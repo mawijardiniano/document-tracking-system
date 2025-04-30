@@ -41,15 +41,21 @@ const Outgoing = () => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const itemsPerPage = 15;
 
-  const handlePreview = (base64Data) => {
-    try {
-      const blob = convertBase64ToBlob(base64Data);
-      const url = URL.createObjectURL(blob);
-      setPdfUrl(url);
-    } catch (error) {
-      console.error("Error previewing the document:", error);
+
+  const handlePreview = (fileData) => {
+    if (!fileData) {
+      console.error("File ID is missing");
+      return;
     }
+
+    const match = fileData.match(/[-\w]{25,}/);
+    const fileId = match ? match[0] : fileData;
+
+    const driveUrl = `https://drive.google.com/file/d/${fileId}/view`;
+
+    window.open(driveUrl, "_blank");
   };
+
 
   const fetchDocument = async () => {
     try {
@@ -207,7 +213,6 @@ const Outgoing = () => {
       if (error.response) {
         console.error("Server Error Response:", error.response.data);
       }
-  
       setNotification({
         message: "Error updating document.",
         type: "error",
@@ -597,7 +602,7 @@ const Outgoing = () => {
               <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ">
                 <div className="bg-white p-5 rounded-lg shadow-lg w-3/4 h-full relative pt-16">
                   <button
-                    onClick={() => setPdfUrl(null)}
+                    onClick={() => handlePreview(doc.fileData)}
                     className="absolute top-4 right-4 text-gray-700 hover:text-red-500"
                   >
                     <X size={30} />

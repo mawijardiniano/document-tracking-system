@@ -15,12 +15,12 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 mongoose
-  .connect(process.env.MONGODB_URI, {
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/DocumentTrackingSystem", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("Database connected successfully"))
-  .catch((err) => console.log("Database connection error: ", err));
+  .then(() => console.log("Connected to MongoDB locally"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 app.use("/api/admin", adminRouter);
 app.use("/api/document", documentRouter);
