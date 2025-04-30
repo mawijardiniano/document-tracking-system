@@ -1,6 +1,5 @@
 const Receiver = require("../models/receiverNameModel");
 
-// Add Receiver
 const addReceiver = async (req, res) => {
   try {
     const { receiver,position } = req.body;
@@ -14,7 +13,7 @@ const addReceiver = async (req, res) => {
       position
     });
 
-    await receiverName.save(); // Save the receiver
+    await receiverName.save();
 
     return res.status(201).json({
       message: "Receiver added successfully",
@@ -22,11 +21,10 @@ const addReceiver = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Errors" });
   }
 };
 
-// Get all receivers
 const getReceivers = async (req, res) => {
   try {
     const receivers = await Receiver.find();
@@ -37,7 +35,6 @@ const getReceivers = async (req, res) => {
   }
 };
 
-// Edit a receiver by ID
 const editReceiver = async (req, res) => {
   try {
     const { id } = req.params;
@@ -67,7 +64,6 @@ const editReceiver = async (req, res) => {
   }
 };
 
-// Delete a receiver by ID
 const deleteReceiver = async (req, res) => {
   try {
     const { id } = req.params;
